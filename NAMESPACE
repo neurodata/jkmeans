@@ -1,0 +1,3 @@
+useDynLib(jkmeans)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
