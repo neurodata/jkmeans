@@ -11,7 +11,7 @@ class Mixture {
   mat mu;
   vec sigma2;
   vec w;
-  mat posterior_weight;
+  mat zeta;
 
   Mixture(mat _y, int _K, int _J) {
     y = _y;
@@ -26,7 +26,12 @@ class Mixture {
     mu = ones<mat>(K, p);
     mu.randn();
 
-    posterior_weight = ones<mat>(n, K);
+    mat means;
+    bool status = kmeans(means, trans(y), K, random_subset, 10, false);
+
+    mu = means.t();
+
+    zeta = ones<mat>(n, K);
   }
 
   double loglik(rowvec x, rowvec mu, double sigma2) {
@@ -40,9 +45,9 @@ class Mixture {
       for (int k = 0; k < K; ++k) {
         rowvec y_local = y.row(i);
         rowvec mu_local = mu.row(k);
-        posterior_weight(i, k) =
+        zeta(i, k) =
             log(w(k)) + loglik(y_local, mu_local, sigma2(k));
-        if (std::isnan(posterior_weight(i, k))) {
+        if (std::isnan(zeta(i, k))) {
           cout << w(k) << endl;
           cout << loglik(y_local, mu_local, sigma2(k)) << endl;
           cout << y_local << endl;
@@ -50,33 +55,37 @@ class Mixture {
           cout << sigma2(k) << endl;
         }
       }
-      rowvec local_posterior_weight = posterior_weight.row(i);
+      rowvec local_zeta = zeta.row(i);
 
-      local_posterior_weight -= local_posterior_weight.max();
+      local_zeta -= local_zeta.max();
 
-      // if(local_posterior_weight.has_nan()){
-      //   cout<< local_posterior_weight<<endl;
-      //   cout<< posterior_weight<<endl;
+      // if(local_zeta.has_nan()){
+      //   cout<< local_zeta<<endl;
+      //   cout<< zeta<<endl;
       // }
 
-      uvec indices = sort_index(local_posterior_weight, "descend");
+      uvec indices = sort_index(local_zeta, "descend");
 
       int trunc_idx = indices(J - 1);
 
-      local_posterior_weight = exp(local_posterior_weight);
+      local_zeta = exp(local_zeta);
 
-      local_posterior_weight(
-          find(local_posterior_weight < local_posterior_weight(trunc_idx)))
+      local_zeta(
+          find(local_zeta < local_zeta(trunc_idx)))
           .fill(0);
 
-      posterior_weight.row(i) =
-          local_posterior_weight / accu(local_posterior_weight);
+      zeta.row(i) =
+          local_zeta / accu(local_zeta);
     }
   }
 
   void Maximization() {
+
+    double diff2 = 0;
+    double sum_total_weights = 0;
+
     for (int k = 0; k < K; ++k) {
-      vec weights = posterior_weight.col(k);
+      vec weights = zeta.col(k);
       double total_weights = accu(weights);
 
       // compute mu
@@ -88,12 +97,17 @@ class Mixture {
       // compute sigma2
       mat diff = (y - repmat(mu.row(k), n, 1));
 
-      sigma2(k) = (accu(sum(diff % diff, 1) % weights) + 0.1) /
-                  (total_weights * p + 0.1);
+      diff2 += accu(sum(diff % diff, 1) % weights);
+      sum_total_weights += total_weights * p ;
+
+      // sigma2(k) = (accu(sum(diff % diff, 1) % weights)) /
+                  // (total_weights * p + 0.1);
 
       // compute w
-      w(k) = accu(weights) / (double)n;
+      // w(k) = accu(weights) / (double)n;
     }
+
+    sigma2.fill(diff2 / sum_total_weights);
   }
 
   void run(int steps) {

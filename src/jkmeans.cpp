@@ -23,5 +23,7 @@ Rcpp::List jkmeans(const arma::mat& y, int k, int j, int steps = 1000) {
 
   return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
                             Rcpp::Named("w") = mix.w,
-                            Rcpp::Named("sigma2") = mix.sigma2);
+                            Rcpp::Named("sigma2") = mix.sigma2,
+                            Rcpp::Named("zeta") = mix.zeta
+                            );
 }
