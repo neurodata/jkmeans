@@ -12,14 +12,33 @@
 using namespace arma;
 
 // [[Rcpp::export]]
-Rcpp::List jkmeans(const arma::mat& y, int k, int j, int steps = 1000) {
+Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000) {
   Mixture mix(y, k, j);
 
     if (j > k) {          
         throw std::range_error("j needs be no bigger than k");
     }
 
-  mix.run(steps);
+  mix.runEM(steps);
+
+  return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
+                            Rcpp::Named("w") = mix.w,
+                            Rcpp::Named("sigma2") = mix.sigma2,
+                            Rcpp::Named("zeta") = mix.zeta
+                            );
+}
+
+
+
+// [[Rcpp::export]]
+Rcpp::List jkmeansQNEM(const arma::mat& y, int k, int j, int steps = 1000) {
+  Mixture mix(y, k, j);
+
+    if (j > k) {          
+        throw std::range_error("j needs be no bigger than k");
+    }
+
+  mix.runQNEM(steps);
 
   return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
                             Rcpp::Named("w") = mix.w,

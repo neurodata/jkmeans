@@ -5,8 +5,8 @@ setwd("~/git/")
 require("jkmeans")
 
 n <- 100
-p <- 1
-K <- 4
+p <- 2
+K <- 5
 sigma2 <- 1
 
 mu <- c(1:K)
@@ -25,19 +25,19 @@ hist(y, breaks = 100)
 # y <- cbind(y,rnorm(n*K),rnorm(n*K))
 
 
-jk <- jkmeans::jkmeans(y, K, j = 4,  10000)
+jk <- jkmeans::jkmeansQNEM(y, K, j = 3,  300)
 
-print(jk$mu)
-print(jk$w)
-print(jk$sigma2)
-hist(jk$zeta)
+jk2 <- jkmeans::jkmeansEM(y, K, j = 3,  100)
+
+jk$mu
+jk2$mu
 
 
-fit_kmean <- kmeans(y, 4)
-# table(fit_kmean$cluster)
-fit_kmean$centers
 
-# require("mclust")
+# print(jk$mu)
+# # print(jk$w)
+# print(jk$sigma2)
+# hist(jk$zeta)
 
-# fit<- Mclust(y,G = 4)
-# fit$parameters
+# image(t(jk$zeta))
+

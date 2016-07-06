@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// jkmeans
-Rcpp::List jkmeans(const arma::mat& y, int k, int j, int steps);
-RcppExport SEXP jkmeans_jkmeans(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP) {
+// jkmeansEM
+Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps);
+RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -16,7 +16,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type j(jSEXP);
     Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
-    __result = Rcpp::wrap(jkmeans(y, k, j, steps));
+    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps));
+    return __result;
+END_RCPP
+}
+// jkmeansQNEM
+Rcpp::List jkmeansQNEM(const arma::mat& y, int k, int j, int steps);
+RcppExport SEXP jkmeans_jkmeansQNEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
+    __result = Rcpp::wrap(jkmeansQNEM(y, k, j, steps));
     return __result;
 END_RCPP
 }
