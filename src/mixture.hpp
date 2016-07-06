@@ -190,11 +190,14 @@ class Mixture {
     for (int i = 0; i < steps; ++i) {
       /* code */
 
+      Expectation();
+
       double curLoglik = compTotalLoglik();
 
       mat hessian = computeHessian();
 
       mat old_mu = mu;
+
 
       vec Q_n_minus_1_bar_n_minus_1 = computeGradient(old_mu);
 
@@ -241,6 +244,9 @@ class Mixture {
         mu = old_mu;
         updateSigma2();
       }
+
+
+
 
       cout << newLoglik << endl;
     }

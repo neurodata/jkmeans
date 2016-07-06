@@ -4,8 +4,8 @@ setwd("~/git/")
 
 require("jkmeans")
 
-n <- 100
-p <- 2
+n <- 10000
+p <- 1
 K <- 5
 sigma2 <- 1
 
@@ -25,9 +25,9 @@ hist(y, breaks = 100)
 # y <- cbind(y,rnorm(n*K),rnorm(n*K))
 
 
-jk <- jkmeans::jkmeansQNEM(y, K, j = 3,  300)
+jk <- jkmeans::jkmeansQNEM(y, K, j = 5,  20)
 
-jk2 <- jkmeans::jkmeansEM(y, K, j = 3,  100)
+jk2 <- jkmeans::jkmeansEM(y, K, j = 5,  20)
 
 jk$mu
 jk2$mu
