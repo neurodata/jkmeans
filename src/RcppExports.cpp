@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // jkmeansEM
-Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps);
-RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP) {
+Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps, double tol);
+RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -16,7 +16,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type j(jSEXP);
     Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
-    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps));
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps, tol));
     return __result;
 END_RCPP
 }

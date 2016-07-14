@@ -252,10 +252,21 @@ class Mixture {
     }
   }
 
-  void runEM(int steps) {
+  void runEM(int steps, double tol) {
+
+    mat mu0 = mu;
+
     for (int i = 0; i < steps; ++i) {
       Expectation();
       Maximization();
+
+      mat diff = mu-mu0;
+
+      if( accu(diff % diff) < tol)
+        break;
+      else
+        mu0 = mu;
+
       cout << compTotalLoglik() << endl;
     }
   }
