@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\pdfoutput=1 
+
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+
+\openup 1em
+
+%macro for commenting
+\usepackage{color}
+\newcommand{\leo}[1]{{\color{blue}{\it leo: #1}}}
+\newcommand{\xbeta}{\boldsymbol X_i^T \boldsymbol\beta}
+
+
+\usepackage[round]{natbib}
+
+\usepackage{rotating}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{float}
+
+
+\usepackage{amsthm,amsmath} 
+\usepackage{amssymb}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+\thispagestyle{empty}
+\baselineskip=28pt
+
+\title
+    {{jk-means}}
+
+
+\date{}
+
+\begin{document}
+    
+\maketitle
+
+\section{Generative Model}
+
+For $i=1\ldots n$, 
+\begin{equation}
+\begin{aligned}
+(w_{1},\ldots,w_{K}) & \sim Dir(\alpha,\ldots,\alpha)\\
+Pr(u_{i1},\ldots,u_{iK}) & = \frac{1}{\binom{K}{J}} \\
+m_i& \sim Multi(w_1 u_{i1},\ldots,w_K u_{iK})\\
+y_i& \sim G(\theta_{m_i})
+\end{aligned}
+\end{equation}
+where $(u_{i1},\ldots,u_{iK})$ is a random sample vector with $J$ $1$'s and $(K-J)$ 0's.
+
+\bibliographystyle{plainnat}
+\bibliography{reference}
+
+\end{document}
