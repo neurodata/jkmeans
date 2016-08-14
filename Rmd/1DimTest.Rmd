@@ -1,0 +1,248 @@
+
+```
+###Prerequisite
+###Install the package if you haven't
+setwd("~/git/")
+require('devtools')
+build('jkmeans')
+install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
+```
+
+```{r include=FALSE}
+require('ggplot2')
+require('reshape')
+```
+
+
+
+#Running jk-means, step-by-step
+
+###1. Generate Data
+Let's generate data from 3 clusters, each with n=100
+
+N(1,1)
+N(2,1)
+N(6,1)
+
+```{r}
+mu<- rep(c(1,2,6),each=100)
+table(mu)
+y<- rnorm(100*3, mu, 1)
+Z<- matrix(0,300,3)
+clusterLabel<- rep(c(1:3),each=100)
+for(i in 1:300){
+  Z[i,clusterLabel[i]]<-1
+}
+
+
+hist(y,breaks=50)
+```
+
+
+###2. Run jk-means
+Run with jk-means with j=2, k=3:
+
+options: 
+max iteration=100
+convergence error tolerance = 1E-8
+```{r}
+K=3
+j=2
+jk <- jkmeans::jkmeansEM(as.matrix(y), K, j ,  1000, tol = 1E-8)
+
+```
+
+###3. Results
+Here are the estimates for $\mu_k$ (sorted in ascending order)
+```{r}
+new_order<- order(jk$mu)
+mu_est<- jk$mu[new_order]
+```
+
+Here are the cluster assignment probability: 
+
+$$\zeta_{ik} = \frac{N(y_i|\mu_k,\sigma^2)}{\sum_k N(y_i|\mu_k,\sigma^2)}$$
+
+```{r echo=FALSE}
+#set up a coloring scheme using colorRampPalette
+zeta_est<- jk$zeta[,new_order]
+m <-melt(zeta_est)
+names(m)<- c("i","k","prob")
+p <- ggplot(data=m, aes(x=i, y=k, fill=prob)) + geom_tile()
+p<- p+ scale_fill_continuous(low = "#FFFFFF", high="red", name = "")
+p
+```
+
+###4. Validation
+
+
+Compute RMSE
+```{r}
+RMSE <- function(a, b) {
+  sqrt(mean((a - b) ^ 2))
+}
+
+RMSE(c(1,2,6),mu_est)
+
+```
+
+Use $\zeta_{ik}$ as  estimator for cluster assignment, compute the expected misclassification loss for each $\sum_k \zeta_{ik} (1- Z_{ik})$:
+
+```{r}
+
+#misclassified ones:
+m <-rowSums( zeta_est*(1-Z))
+
+#misclassification rate
+sum(m)/300
+```
+
+
+Use $\hat{Z}_{i}= \max_k\zeta_{ik}$ as MAP estimator for cluster assignment, compute the misclassification error ($\sum_k \delta_{\hat{Z}_{i},k}(1-{Z_{ik}})$):
+
+```{r}
+
+misclsError<-function(zeta_est, n, Z){
+  Z_est <- t(apply(zeta_est, MARGIN = 1, function(x){x==max(x)}))*1
+  m <-rowSums(Z_est*(1-Z))
+  sum(m)/n
+}
+
+#misclassification rate
+misclsError(zeta_est,300, Z)
+```
+
+
+#Run jk-means with different n (repeat 50 times for each)
+
+Define the functions:
+```{r}
+
+
+
+jkmeansExperiment<-function(n,j=3, sigma=1){
+  
+  
+  mu<- rep(c(1,2,6),each=n)
+
+  Z<- matrix(0,n*3,3)
+  clusterLabel<- rep(c(1:3),each=n)
+  for(i in 1:(n*3)){
+    Z[i,clusterLabel[i]]<-1
+  }
+
+  y<- as.matrix(rnorm(n*3, mu, sigma))
+  
+  jk <- jkmeans::jkmeansEM(y, K, j=j ,  1000, tol = 1E-8)
+  new_order<- order(jk$mu)
+  mu_est<- jk$mu[new_order]
+  zeta_est<- jk$zeta[,new_order]
+c(RMSE(c(1,2,6),mu_est),misclsError(zeta_est,3*n,Z))
+}
+
+runExp<- function(j=3,n=100, m=50){
+  
+  
+  rmse<- numeric(m)
+  mce<- numeric(m)
+
+  for(i in 1:m){
+      result<- jkmeansExperiment(n,j=j)
+      rmse[i]<- result[1]
+      mce[i]<- result[2]
+  }
+  return(list("RMSE"=rmse,"MCE"=mce))
+}
+
+```
+
+
+Run n=seq(10,500,by=10), get average RMSE and MCE over 50 times for each n:
+
+run with $j=3$
+```{r}
+
+n_seq<- seq(10,500,by=10)
+
+
+avg_rmse_3<- numeric(length(n_seq))
+avg_mce_3<- numeric(length(n_seq))
+
+for(i in 1:length(n_seq)){
+  n<- n_seq[i]
+  Exp<- runExp(j=3,n=n,m=50)
+  avg_rmse_3[i]<- mean(Exp$RMSE)
+  avg_mce_3[i]<- mean(Exp$MCE)
+  print(i)
+}
+
+```
+
+run with $j=2$
+```{r}
+
+
+avg_rmse_2<- numeric(length(n_seq))
+avg_mce_2<- numeric(length(n_seq))
+
+for(i in 1:length(n_seq)){
+  n<- n_seq[i]
+  Exp<- runExp(j=2,n=n,m=50)
+  avg_rmse_2[i]<- mean(Exp$RMSE)
+  avg_mce_2[i]<- mean(Exp$MCE)
+  print(i)
+}
+
+```
+
+
+run with $j=1$
+```{r}
+
+
+avg_rmse_1<- numeric(length(n_seq))
+avg_mce_1<- numeric(length(n_seq))
+
+for(i in 1:length(n_seq)){
+  n<- n_seq[i]
+  Exp<- runExp(j=1,n=n,m=50)
+  avg_rmse_1[i]<- mean(Exp$RMSE)
+  avg_mce_1[i]<- mean(Exp$MCE)
+  print(i)
+}
+
+```
+
+
+
+Plot of the RMSE vs n
+
+```{r}
+
+plot1<- data.frame( "n" = rep(n_seq, 3),
+            "RMSE_avg"=c(avg_rmse_1,avg_rmse_2,avg_rmse_3),
+            "j"= as.factor(rep(c(1:3),each= length(n_seq)))
+            )
+
+p<- ggplot(data=plot1, aes())
+p<- p+  geom_line(aes(x= n, y=RMSE_avg, colour=j)) 
+p<- p+ theme_bw() + labs(title = "mu = 1,2,6")
+p
+```
+
+
+Plot of the misclassification error vs n
+
+```{r}
+
+plot2<- data.frame( "n" = rep(n_seq, 3),
+            "MCE_avg"=c(avg_mce_1,avg_mce_2,avg_mce_3),
+            "j"= as.factor(rep(c(1:3),each= length(n_seq)))
+            )
+
+p<- ggplot(data=plot2, aes())
+p<- p+  geom_line(aes(x= n, y=MCE_avg, colour=j)) 
+p<- p+ theme_bw() + labs(title = "mu = 1,2,6")
+p
+```
+

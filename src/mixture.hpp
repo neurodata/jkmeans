@@ -248,7 +248,7 @@ class Mixture {
 
 
 
-      cout << newLoglik << endl;
+      //cout << newLoglik << endl;
     }
   }
 
@@ -267,7 +267,7 @@ class Mixture {
       else
         mu0 = mu;
 
-      cout << compTotalLoglik() << endl;
+     // cout << compTotalLoglik() << endl;
     }
   }
 
