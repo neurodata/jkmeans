@@ -63,8 +63,8 @@ k <- 10
 N <- n*k
 
 set.seed(49)
-(mux <- sort(sample(-20:20, 10)))
-(muy <- sample(-20:20, 10))
+mux <- sort(sample(-20:20, 10))
+muy <- sample(-20:20, 10)
 
 (mu0 <- cbind(mux, muy))
 (sigma1 <- sample(c(1,1,1,2,3,4,5), 10, replace=TRUE))
@@ -106,7 +106,7 @@ max iteration=100
 convergence error tolerance = 1E-8
 ```{r}
 K <- k
-j <- 5
+j <- 2
 
 set.seed(5431)
 set.seed(2^10)
