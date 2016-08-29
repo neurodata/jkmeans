@@ -1,0 +1,180 @@
+---
+title: "$jk$-means tests"
+author: "Jesse Leigh Patsolic"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    fig_caption: yes
+    fig_height: 5
+    fig_width: 5
+    fig_retina: 2.7
+    highlight: pygments
+    keep_md: yes
+    number_sections: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+---
+
+
+```{r cc-setup, eval=FALSE, include=FALSE}
+require(rmarkdown)
+rmarkdown::render("bigKtest.Rmd")
+system('open bigKtest.html')
+```
+
+```{r knitrOpts, include=FALSE, results='asis', message=FALSE, warning=FALSE}
+require(rmarkdown)
+require(knitr)
+knitr::opts_chunk$set(cache=TRUE, autodep=TRUE)
+dep_auto() # figure out dependencies automatically
+opts_chunk$set(cache=TRUE, echo=TRUE, 
+               opts_chunk$set(fig.path = './'),
+               warning=FALSE, message=FALSE, 
+               comment="#",
+               dpi=227,dev=c('png','pdf'))
+```
+
+```{r include=FALSE}
+require('ggplot2')
+require('reshape')
+require(mvtnorm)
+require(plotly)
+require(jkmeans)
+require(mclust)
+require(gridExtra)
+source("~/neurodata/synaptome-stats/Code/kmpp.r")
+```
+
+
+# Generate Data
+
+Let $X \sim \sum_i^k \pi_i \mathcal{N}_i(\mu_i, \sigma^2_i I)$. 
+With $k = 10$ and $n = 1000$, $N = nk$.
+
+
+```{r cc-genParams}
+n <- 1e3
+k <- 10
+N <- n*k
+
+set.seed(49)
+(mux <- sort(sample(-20:20, 10)))
+(muy <- sample(-20:20, 10))
+
+(mu0 <- cbind(mux, muy))
+(sigma1 <- sample(c(1,1,1,2,3,4,5), 10, replace=TRUE))
+sigma0 <- lapply(sigma1, function(x) matrix(x*c(1,0,0,1), 2, 2))
+
+Z <- rep(1:k, each = n)
+```
+
+Here are the means
+```{r p-means}
+plot(mu0, col = 1:10, pch = 19, cex = 3)
+```
+
+We now generate the data with 
+```{r cc-genXs}
+X0 <- data.frame(t(sapply(Z, function(x) rmvnorm(1, mu0[x,], sigma0[[x]]))), Z)
+names(X0) <- c('x1', 'x2', 'Z')
+
+head(X0[sample(dim(X0)[1]),])
+dat <- as.matrix(X0[, 1:2])
+```
+
+And here are the data colored with the truth.
+```{r p-X0s}
+ggCol <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a')
+ggplot(data = X0, aes(x=x1, y=x2, color = as.factor(Z))) +
+  scale_color_manual(values = ggCol) + 
+  geom_point(alpha = 0.5)
+```
+
+
+# Run algorithms
+
+## Run $jk$-means
+Run with $jk$-means with $j=2, k=10$:
+
+options: 
+max iteration=100
+convergence error tolerance = 1E-8
+```{r}
+K <- k
+j <- 5
+
+set.seed(5431)
+set.seed(2^10)
+system.time(
+  jk <- jkmeans::jkmeansEM(dat, K, j , 100, tol = 1E-8)
+)
+jkv <- apply(jk$zeta, 1,  function(x) which( x == max(x) ))
+```
+
+
+## Run $k=10$-means initialized at the truth
+
+```{r cc-km}
+system.time({
+  kv <- kmeans(dat, centers = mu0)
+}
+)
+```
+
+
+## Run MCLUST
+
+```{r cc-mclust}
+system.time(
+  mcv <- Mclust(dat, 
+              G = K, 
+              modelNames="EII")
+)
+mcv
+```
+# Results
+
+```{r, echo=FALSE}
+ari <- c(mclust::adjustedRandIndex(Z, kv$cluster),
+mclust::adjustedRandIndex(Z, jkv),
+mclust::adjustedRandIndex(Z, mcv$classification))
+
+Names <- c("Truth v km", "Truth v jk", "Truth v mclust")
+
+data.frame(Names, ari)
+```
+
+```{r p-results}
+Y <- data.frame(X0, jk=jkv, kv = kv$cluster,
+                mc=mcv$classification, kvpp=kvpp$cluster)
+
+p1 <- ggplot(data = Y, aes(x=x1, y=x2)) +
+  scale_color_manual(values = ggCol) 
+```
+
+```{r p-all, echo=FALSE, fig.height=12,fig.width=16}
+layoutm <- matrix(c(NA,2,NA,3,1,4,NA,NA,NA),3,3)
+
+grid.arrange(
+ p1 + geom_point(alpha = 0.25, aes(color = as.factor(Z))) +
+   ggtitle("Truth"),
+ p1 + geom_point(alpha = 0.25, aes(color = as.factor(jkv))) +
+   ggtitle("(2,10)=jk-means"),
+ p1 + geom_point(alpha = 0.25, aes(color = as.factor(mc))) +
+   ggtitle("10=k, mclust"),
+ p1 + geom_point(alpha = 0.25, aes(color = as.factor(kv))) +
+   ggtitle("10=k-means"),
+# p1 + geom_point(alpha = 0.25, aes(color = as.factor(kvpp))) +
+#   ggtitle("10=k-meanspp"), 
+ layout_matrix = layoutm
+)
+```
+
+
+
+
