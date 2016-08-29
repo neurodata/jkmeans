@@ -21,7 +21,7 @@ output:
 ---
 
 
-```{r cc-setup, eval=FALSE, include=FALSE}
+```{r cc-run, eval=FALSE, include=FALSE}
 require(rmarkdown)
 rmarkdown::render("bigKtest.Rmd")
 system('open bigKtest.html')
@@ -51,7 +51,129 @@ source("~/neurodata/synaptome-stats/Code/kmpp.r")
 ```
 
 
-# Generate Data
+# Generate Data 1d
+
+Let $X \sim \sum_i^k \pi_i \mathcal{N}_i(\mu_i, \sigma^2)$. 
+With $k = 10$ and $n = 1000$, $N = nk$, $\pi_i = 1/n$.
+
+
+```{r cc-1genParams}
+n <- 2e3
+k <- 10
+N <- n*k
+
+set.seed(53)
+mux <- c(seq(1,5,by=1),8, 10,15, 20, 25)
+
+mu0 <- mux
+(sigma1 <- rep(1,10))
+
+Z <- rep(1:k, each = n)
+```
+
+Here are the means
+```{r p-1means}
+plot(mu0, col = 1:10, pch = 19, cex = 3)
+```
+
+We now generate the data with 
+```{r cc-1genXs}
+X0 <- data.frame(x1 = sapply(Z, function(x) rnorm(1, mu0[x], sigma1[x])), Z = Z)
+                 
+
+head(X0[sample(dim(X0)[1]),])
+dat <- X0[, 1]
+```
+
+And here are the data colored with the truth.
+```{r p-1X0s}
+ggCol <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a')
+ggplot(data = X0, aes(x=x1, y = Z, ,color = as.factor(Z))) +
+  scale_color_manual(values = ggCol) + 
+  geom_point(alpha = 0.5)
+```
+
+# Run algorithms
+
+## Run $jk$-means
+Run with $jk$-means with $j=2, k=10$:
+
+options: 
+max iteration=100
+convergence error tolerance = 1E-8
+```{r, eval=FALSE}
+K <- k
+j <- 2
+
+set.seed(2^10)
+system.time(
+  jk <- jkmeans::jkmeansEM(as.matrix(dat), K, j , 100, tol = 1E-8)
+)
+jkv <- apply(jk$zeta, 1,  function(x) which( x == max(x) ))
+```
+
+
+## Run $k=10$-means initialized at the truth
+
+```{r cc-1km}
+system.time({
+  kv <- kmeans(dat, centers = mu0)
+}
+)
+```
+
+
+## Run MCLUST
+
+```{r cc-1mclust}
+system.time(
+  mcv <- Mclust(dat, 
+              G = K, 
+              modelNames="E")
+)
+mcv
+```
+# Results
+
+```{r, echo=FALSE}
+ari <- c(mclust::adjustedRandIndex(Z, kv$cluster),
+         mclust::adjustedRandIndex(Z, jkv),
+         mclust::adjustedRandIndex(Z, mcv$classification))
+
+Names <- c("Truth v km", "Truth v jk", "Truth v mclust")
+
+data.frame(Names, ari)
+```
+
+```{r p-1results}
+Y <- data.frame(X0, kv = kv$cluster,
+                mc=mcv$classification,
+                jk=jkv)
+
+p1d <- ggplot(data = Y, aes(x=x1, y=Z)) +
+  scale_color_manual(values = ggCol) 
+```
+
+
+```{r p-1all, echo=FALSE, fig.height=12,fig.width=16}
+layoutm <- matrix(c(NA,2,NA,3,1,4,NA,NA,NA),3,3)
+
+grid.arrange(
+ p1d + geom_point(alpha = 0.25, aes(color = as.factor(Z))) +
+   ggtitle("Truth"),
+ p1d + geom_point(alpha = 0.25, aes(color = as.factor(mc))) +
+   ggtitle("10=k, mclust"),
+ p1d + geom_point(alpha = 0.25, aes(color = as.factor(kv))) +
+   ggtitle("10=k-means"),
+ p1d + geom_point(alpha = 0.25, aes(color = as.factor(jk))) +
+   ggtitle("(2,10)=jk-means"),
+ layout_matrix = layoutm
+)
+```
+
+
+
+# Generate Data 2d
 
 Let $X \sim \sum_i^k \pi_i \mathcal{N}_i(\mu_i, \sigma^2_i I)$. 
 With $k = 10$ and $n = 1000$, $N = nk$.
@@ -151,7 +273,7 @@ data.frame(Names, ari)
 
 ```{r p-results}
 Y <- data.frame(X0, jk=jkv, kv = kv$cluster,
-                mc=mcv$classification, kvpp=kvpp$cluster)
+                mc=mcv$classification)
 
 p1 <- ggplot(data = Y, aes(x=x1, y=x2)) +
   scale_color_manual(values = ggCol) 
