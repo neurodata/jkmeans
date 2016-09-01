@@ -67,9 +67,7 @@ On a separable metrics space $\{\mathcal{X},\mathcal{F}\}$, we assume each data 
 \end{equation}
 where $\delta_{\theta_{k}}(y_i)$ is a probabilty density corresponds to a component distribution with parameter $\theta_{k}$, and $w_{k,i}$ is the component weight that varies by index $i$ and $\sum_{k=1}^{\kappa} w_{k,i} =1$. The weight varying is due to the randomness in $u_{k,i}$. Due to the $0$'s $u_{k,i}$ introduces, this induces sparsity in the membership probabilty $w_{k,i}$. Therefore, we refer this as the sparse mixture model.
 
-\subsection{JK-Means}
-
-With the above general framework, we focus on a special case $\{ u_{1,i},u_{2,i},\ldots u_{\kappa,i}\} \sim \text{ J out of K draws}$ and $\nu_k = 1/\kappa$. We refer this as JK-Means as when $J=1$, this reduces to standard K-means method.
+\subsection{Estimation}
 
 We now use the latent variable $\{ z_{1,i},z_{2,i},\ldots z_{\kappa,i} \} \sim MultiNomial (\{ w_{1,i},w_{2,i},\ldots w_{\kappa,i}\} )$ that takes value of $\{0,\ldots,1,\ldots 0\}$ that assign randomly one $1$ to one of $\kappa$ vertices in the simplex. The likelihood can be rewritten as:
 
@@ -91,19 +89,25 @@ where $P(d z_{k,i})$ is the measure of the multinomial distribution aforemention
  This allows us to utilize Expectation-Maximization algorithm for parameter estimation:
 
 \begin{algorithm}[H]
-\caption{EM algorithm for JK-Means}\label{alg:euclid}
+\caption{EM algorithm}\label{alg:euclid}
 \begin{algorithmic}[1]
 % \Procedure{Euclid}{$a,b$}\Comment{The g.c.d. of a and b}
 % \State $r\gets a\bmod b$
 \While{$||\theta^{(s)}-\theta^{(s+1)}||>\epsilon$}%\Comment{We have the answer if r is 0}
 \State Maximize over $\{ u_{i,k}\}_k$ by $ \underset{\{u_{i,k}\}_k} {\text{argmax }}\{u_{i,k}  v_{k}\delta_{\theta_{k}}(y_i)\}$ for all $i$; \Comment{\small pick top J out K based on (\ref{marginal_lik})}
-\State Compute $ \mathbb{E}(z_{i,k})= \frac{w_{k,i} \delta_{\theta_{k}}(y_i)}{\sum_k w_{k,i} \delta_{\theta_{k}}(y_i)}$ with $w_{k,i} = u_{i,k} v_{k}$; \Comment{E step  based on (\ref{conditional_lik})}
+\State Compute $ \mathbb{E}(z_{k,i})= \frac{w_{k,i} \delta_{\theta_{k}}(y_i)}{\sum_k w_{k,i} \delta_{\theta_{k}}(y_i)}$ with $w_{k,i} = u_{i,k} v_{k}$; \Comment{E step  based on (\ref{conditional_lik})}
 \State Set $\theta^{(s+1)}_{k}= \text{argmax} \sum_{k=1}^{\kappa} \mathbb{E}z_{k,i} \log \delta_{\theta_{k}}(y_i) $ for all $k$ \Comment{M step: obtain MLE based on (\ref{conditional_lik})}
-\EndWhile\label{euclidendwhile}
+\State Set $v^{(s+1)}_{k}=  \sum_{i}\mathbb{E}z_{k,i} /  \sum_{i}\sum_{k}\mathbb{E}z_{k,i}$ \Comment{M step: obtain MLE based on (\ref{conditional_lik})}\label{flex_w_step}
+\EndWhile
 % \State \textbf{return} $b$\Comment{The gcd is b}
 % \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+
+\subsubsection{JK-Means}
+
+With the above general framework, there is a special case $\{ u_{1,i},u_{2,i},\ldots u_{\kappa,i}\} \sim \text{ J out of K draws}$ and $\nu_k = 1/\kappa$. We refer this as JK-Means as when $J=1$, this reduces to standard K-means method. The estimation procedure is the same as above except step \ref{flex_w_step} is skipped.
+
 
 
 \bibliographystyle{plainnat}

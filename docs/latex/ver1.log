@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.30)  1 SEP 2016 14:13
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.30)  1 SEP 2016 15:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -639,7 +639,7 @@ See the caption package documentation for explanation.
 [2] (./ver1.aux) ) 
 Here is how much of TeX's memory you used:
  4935 strings out of 493013
- 68302 string characters out of 6139317
+ 68299 string characters out of 6139317
  137750 words of memory out of 5000000
  8396 multiletter control sequences out of 15000+600000
  13951 words of font info for 54 fonts, out of 8000000 for 9000
@@ -657,7 +657,7 @@ type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-dist/fonts/type1/public/am
 sfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10
 .pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/shar
 e/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on ver1.pdf (2 pages, 143139 bytes).
+Output written on ver1.pdf (2 pages, 144097 bytes).
 PDF statistics:
  67 PDF objects out of 1000 (max. 8388607)
  48 compressed objects within 1 object stream
