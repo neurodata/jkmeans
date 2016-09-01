@@ -11,6 +11,8 @@ install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 ```{r include=FALSE}
 require('ggplot2')
 require('reshape')
+require('jkmeans')
+
 ```
 
 
@@ -24,7 +26,7 @@ N( c(0.3,0.7), diag(1.7661/n))
 n<- 30
 K<- 2
 p<- 2
-batchN<- 1000
+batchN<- 10000
 
 yBatch<- array(0,dim = c(n*K,p,batchN))
 
@@ -94,3 +96,51 @@ dataHist<- data.frame("J"=rep(c(1,2),each=batchN),
 
 ggplot(dataHist, aes(ErrorRate, fill = as.factor(J))) + geom_histogram(alpha = 0.2,bins = 50,  position="identity")
 ```
+
+
+
+###2. Run j-sparse-GMM with different j
+
+
+Run 12-GMM, get average error
+
+```{r}
+
+
+jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini,fixW = F)
+
+error12 <- computeMError(jk12,n)
+
+mean(error12)
+```
+
+
+Run 22-GMM, get average error
+
+```{r}
+
+
+jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini,fixW = F)
+
+error22 <- computeMError(jk22,n)
+
+mean(error22)
+```
+
+
+Plot overlay error rate histograms:
+
+```{r}
+
+dataHist<- data.frame("J"=rep(c(1,2),each=batchN),
+                  "ErrorRate"= c(error12,error22))
+
+ggplot(dataHist, aes(ErrorRate, fill = as.factor(J))) + geom_histogram(alpha = 0.2,bins = 50,  position="identity")
+```
+
+
+#Conclusion:
+
+The better performance of the k-means over GMM in terms of clustering, reported by Renze, is more likely due to fixing w=1/k in k-means.
+
+On the other hand, we do see 1-sparse-GMM outperforms 2-sparse-GMM in clustering. This suggests focusing applying the sparsity idea in general mixture model would be a good direction.

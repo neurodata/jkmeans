@@ -16,6 +16,8 @@ class Mixture {
   vec gradient;
   mat hessian;
 
+  bool fixW;
+
   Mixture(mat _y, int _K, int _J) {
     y = _y;
     K = _K;
@@ -40,7 +42,7 @@ class Mixture {
     hessian = zeros<mat>(p * K, p * K);
   }
 
-  void initialize(mat meansInput, bool useKmeansIni) {
+  void initialize(mat meansInput, bool useKmeansIni, bool _fixW) {
     if (useKmeansIni) {
       mat means;
       bool status = kmeans(means, trans(y), K, random_subset, 10, false);
@@ -48,6 +50,8 @@ class Mixture {
     } else {
       mu = meansInput;
     }
+
+    fixW = _fixW;
   }
 
   double loglik(rowvec x, rowvec mu, double sigma2) {
@@ -130,7 +134,7 @@ class Mixture {
       // (total_weights * p + 0.1);
 
       // compute w
-      // w(k) = accu(weights) / (double)n;
+      if (!fixW) w(k) = accu(weights) / (double)n;
     }
 
     sigma2 = (diff2 / sum_total_weights);
