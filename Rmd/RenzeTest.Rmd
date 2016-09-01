@@ -1,0 +1,96 @@
+
+```
+###Prerequisite
+###Install the package if you haven't
+setwd("~/git/")
+require('devtools')
+build('jkmeans')
+install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
+```
+
+```{r include=FALSE}
+require('ggplot2')
+require('reshape')
+```
+
+
+###1. Generate Data
+Let's generate data from 2 clusters, each of size n
+
+N( c(0.7,0.3), diag(1.7661/n))
+N( c(0.3,0.7), diag(1.7661/n))
+
+```{r}
+n<- 30
+K<- 2
+p<- 2
+batchN<- 1000
+
+yBatch<- array(0,dim = c(n*K,p,batchN))
+
+
+mu0<- c(c(0.7,0.3), c(0.3,0.7))
+mu<- matrix( 0,n*2,p)
+mu[1:n,]<- rep(c(0.7,0.3),each=n)
+mu[(n+1):(2*n),]<- rep(c(0.3,0.7),each=n)
+
+sigma<-  sqrt(1.7661/n)
+
+for(b in 1:batchN){
+  yBatch[,,b]<- matrix( rnorm(n*p*2,mu,sigma), n*K, p)
+}
+
+
+mu_ini<- matrix(mu0,K,p)
+
+
+computeMError<- function(jk, n){
+  error<- numeric(batchN)
+  for(b in 1:batchN){
+    newOrder<- order(jk$mu[,1,b],decreasing = T)
+    trueM<- rep( c(0,1)[newOrder], each=n)
+    error[b]<- sum (jk$M[,b] != trueM) /2/n
+  }
+  error
+}
+
+```
+
+###2. Test jk-means with different j
+
+
+Run 12-Means, get average error
+
+```{r}
+
+
+jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini)
+
+error12 <- computeMError(jk12,n)
+
+mean(error12)
+```
+
+
+Run 22-Means, get average error
+
+```{r}
+
+
+jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini)
+
+error22 <- computeMError(jk22,n)
+
+mean(error22)
+```
+
+
+Plot overlay error rate histograms:
+
+```{r}
+
+dataHist<- data.frame("J"=rep(c(1,2),each=batchN),
+                  "ErrorRate"= c(error12,error22))
+
+ggplot(dataHist, aes(ErrorRate, fill = as.factor(J))) + geom_histogram(alpha = 0.2,bins = 50,  position="identity")
+```
