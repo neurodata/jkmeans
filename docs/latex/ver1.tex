@@ -24,11 +24,15 @@
 
 \usepackage{float}
 
-
 \usepackage{amsthm,amsmath} 
 \usepackage{amssymb}
 \usepackage{subcaption}
 \captionsetup{compatibility=false}
+
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
@@ -37,7 +41,7 @@
 \baselineskip=28pt
 
 \title
-    {{jk-means}}
+    {{Sparse Mixture Model (with jk-means a special case)}}
 
 
 \date{}
@@ -46,18 +50,61 @@
     
 \maketitle
 
-\section{Generative Model}
 
-For $i=1\ldots n$, 
+\section{Sparse Mixture Model}
+
+\subsection{General Framework}
+
+On a separable metrics space $\{\mathcal{X},\mathcal{F}\}$, we assume each data $y_i$ has the following probabilty density as the likelihood:
+
 \begin{equation}
 \begin{aligned}
-(w_{1},\ldots,w_{K}) & \sim Dir(\alpha,\ldots,\alpha)\\
-Pr(u_{i1},\ldots,u_{iK}) & = \frac{1}{\binom{K}{J}} \\
-m_i& \sim Multi(w_1 u_{i1},\ldots,w_K u_{iK})\\
-y_i& \sim G(\theta_{m_i})
+& [ y_i ] = \sum_{k=1}^{\kappa} w_{k,i} \delta_{\theta_{k}}(y_i) \\
+& w_{k,i} = \frac{ u_{k,i} v_{k} } { \sum_{k=1}^{\kappa}  u_{k,i} v_{k} }\\
+& u_{k,i} \in \{0,1\}
+\end{aligned}
+\label{marginal_lik}
+\end{equation}
+where $\delta_{\theta_{k}}(y_i)$ is a probabilty density corresponds to a component distribution with parameter $\theta_{k}$, and $w_{k,i}$ is the component weight that varies by index $i$ and $\sum_{k=1}^{\kappa} w_{k,i} =1$. The weight varying is due to the randomness in $u_{k,i}$. Due to the $0$'s $u_{k,i}$ introduces, this induces sparsity in the membership probabilty $w_{k,i}$. Therefore, we refer this as the sparse mixture model.
+
+\subsection{JK-Means}
+
+With the above general framework, we focus on a special case $\{ u_{1,i},u_{2,i},\ldots u_{\kappa,i}\} \sim \text{ J out of K draws}$ and $\nu_k = 1/\kappa$. We refer this as JK-Means as when $J=1$, this reduces to standard K-means method.
+
+We now use the latent variable $\{ z_{1,i},z_{2,i},\ldots z_{\kappa,i} \} \sim MultiNomial (\{ w_{1,i},w_{2,i},\ldots w_{\kappa,i}\} )$ that takes value of $\{0,\ldots,1,\ldots 0\}$ that assign randomly one $1$ to one of $\kappa$ vertices in the simplex. The likelihood can be rewritten as:
+
+
+\begin{equation}
+\begin{aligned}
+& [ y_i ] =   \sum_{k=1}^{\kappa} \int z_{k,i} \delta_{\theta_{k}}(y_i) P(d z_{k,i}) = \int \sum_{k=1}^{\kappa} z_{k,i} \delta_{\theta_{k}}(y_i) P(d z_{k,i})
 \end{aligned}
 \end{equation}
-where $(u_{i1},\ldots,u_{iK})$ is a random sample vector with $J$ $1$'s and $(K-J)$ 0's.
+where $P(d z_{k,i})$ is the measure of the multinomial distribution aforementioned, the last equation is due to Fubini theorem. Note due to the $z_{k,i}$ takes only one $1$ out of $K$, this allows a simple log-density augmented with $z_{k,i}$:
+
+\begin{equation}
+\begin{aligned}
+& \log[ \{y_i\}_i, \{z_{k,i}\}_{k,i} ] =  \sum_{i}\sum_{k=1}^{\kappa} z_{k,i} \log \{\delta_{\theta_{k}}(y_i) v_k \}
+\end{aligned}
+\label{conditional_lik}
+\end{equation}
+
+ This allows us to utilize Expectation-Maximization algorithm for parameter estimation:
+
+\begin{algorithm}[H]
+\caption{EM algorithm for JK-Means}\label{alg:euclid}
+\begin{algorithmic}[1]
+% \Procedure{Euclid}{$a,b$}\Comment{The g.c.d. of a and b}
+% \State $r\gets a\bmod b$
+\While{$||\theta^{(s)}-\theta^{(s+1)}||>\epsilon$}%\Comment{We have the answer if r is 0}
+\State Maximize over $\{ u_{i,k}\}_k$ by $ \underset{\{u_{i,k}\}_k} {\text{argmax }}\{u_{i,k}  v_{k}\delta_{\theta_{k}}(y_i)\}$ for all $i$; \Comment{\small pick top J out K based on (\ref{marginal_lik})}
+\State Compute $ \mathbb{E}(z_{i,k})= \frac{w_{k,i} \delta_{\theta_{k}}(y_i)}{\sum_k w_{k,i} \delta_{\theta_{k}}(y_i)}$ with $w_{k,i} = u_{i,k} v_{k}$; \Comment{E step  based on (\ref{conditional_lik})}
+\State Set $\theta^{(s+1)}_{k}= \text{argmax} \sum_{k=1}^{\kappa} \mathbb{E}z_{k,i} \log \delta_{\theta_{k}}(y_i) $ for all $k$ \Comment{M step: obtain MLE based on (\ref{conditional_lik})}
+\EndWhile\label{euclidendwhile}
+% \State \textbf{return} $b$\Comment{The gcd is b}
+% \EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
 
 \bibliographystyle{plainnat}
 \bibliography{reference}
