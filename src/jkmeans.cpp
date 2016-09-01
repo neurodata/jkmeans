@@ -12,37 +12,75 @@
 using namespace arma;
 
 // [[Rcpp::export]]
-Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000, double tol = 1E-8) {
+Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
+                     double tol = 1E-8, bool useKmeansIni = true,
+                     const arma::mat& meansIni = 0) {
   Mixture mix(y, k, j);
 
-    if (j > k) {          
-        throw std::range_error("j needs be no bigger than k");
-    }
+  if (j > k) {
+    throw std::range_error("j needs be no bigger than k");
+  }
+
+  mix.initialize(meansIni, useKmeansIni);
 
   mix.runEM(steps, tol);
 
-  return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
-                            Rcpp::Named("w") = mix.w,
-                            Rcpp::Named("sigma2") = mix.sigma2,
-                            Rcpp::Named("zeta") = mix.zeta
-                            );
+  return Rcpp::List::create(
+      Rcpp::Named("mu") = mix.mu, Rcpp::Named("w") = mix.w,
+      Rcpp::Named("sigma2") = mix.sigma2, Rcpp::Named("zeta") = mix.zeta,
+      Rcpp::Named("M") = mix.clusteringMAP());
 }
-
-
 
 // [[Rcpp::export]]
-Rcpp::List jkmeansQNEM(const arma::mat& y, int k, int j, int steps = 1000) {
-  Mixture mix(y, k, j);
+Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
+                          double tol = 1E-8, bool useKmeansIni = true,
+                          const arma::mat& meansIni = 0) {
+  if (j > k) {
+    throw std::range_error("j needs be no bigger than k");
+  }
 
-    if (j > k) {          
-        throw std::range_error("j needs be no bigger than k");
-    }
+  int n = y.n_rows;
+  int p = y.n_cols;
+  int batchN = y.n_slices;
 
-  mix.runQNEM(steps);
+  cube mu(k, p, batchN);
+  mat w(k, batchN);
+  vec sigma2(batchN);
+  cube zeta(n, k, batchN);
+  umat M(n, batchN);
 
-  return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
-                            Rcpp::Named("w") = mix.w,
-                            Rcpp::Named("sigma2") = mix.sigma2,
-                            Rcpp::Named("zeta") = mix.zeta
-                            );
+#pragma omp parallel for
+  for (int i = 0; i < batchN; ++i) {
+    mat localY = y.slice(i);
+    Mixture mix(localY, k, j);
+    mix.initialize(meansIni, useKmeansIni);
+    mix.runEM(steps, tol);
+
+    mu.slice(i) = mix.mu;
+    w.col(i) = mix.w;
+    sigma2(i) = mix.sigma2;
+    zeta.slice(i) = mix.zeta;
+    M.col(i) = mix.clusteringMAP();
+  }
+
+  return Rcpp::List::create(Rcpp::Named("mu") = mu, Rcpp::Named("w") = w,
+                            Rcpp::Named("sigma2") = sigma2,
+                            Rcpp::Named("zeta") = zeta, Rcpp::Named("M") = M);
 }
+
+// // [[Rcpp::export]]
+// Rcpp::List jkmeansQNEM(const arma::mat& y, int k, int j, int steps = 1000) {
+//   Mixture mix(y, k, j);
+
+//     if (j > k) {
+//         throw std::range_error("j needs be no bigger than k");
+//     }
+
+//   mix.runQNEM(steps);
+
+//   return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
+//                             Rcpp::Named("w") = mix.w,
+//                             Rcpp::Named("sigma2") = mix.sigma2,
+//                             Rcpp::Named("zeta") = mix.zeta
+//                             );
+// }

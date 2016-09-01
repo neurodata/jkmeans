@@ -23,7 +23,7 @@ class Mixture {
     n = y.n_rows;
     p = y.n_cols;
 
-    // initialzie weights
+    // initialize weights
     w = ones(K) / (double)K;
     sigma2 = 1;
     mu = ones<mat>(K, p);
@@ -38,6 +38,16 @@ class Mixture {
 
     gradient = zeros(p * K);
     hessian = zeros<mat>(p * K, p * K);
+  }
+
+  void initialize(mat meansInput, bool useKmeansIni) {
+    if (useKmeansIni) {
+      mat means;
+      bool status = kmeans(means, trans(y), K, random_subset, 10, false);
+      mu = means.t();
+    } else {
+      mu = meansInput;
+    }
   }
 
   double loglik(rowvec x, rowvec mu, double sigma2) {
@@ -198,7 +208,6 @@ class Mixture {
 
       mat old_mu = mu;
 
-
       vec Q_n_minus_1_bar_n_minus_1 = computeGradient(old_mu);
 
       // run one descent
@@ -240,41 +249,37 @@ class Mixture {
         }
       }
 
-      if(std::isnan(newLoglik) || std::isinf(newLoglik) || mu.has_nan()){
+      if (std::isnan(newLoglik) || std::isinf(newLoglik) || mu.has_nan()) {
         mu = old_mu;
         updateSigma2();
       }
 
-
-
-
-      //cout << newLoglik << endl;
+      // cout << newLoglik << endl;
     }
   }
 
   void runEM(int steps, double tol) {
-
     mat mu0 = mu;
 
     for (int i = 0; i < steps; ++i) {
       Expectation();
       Maximization();
 
-      mat diff = mu-mu0;
+      mat diff = mu - mu0;
 
-      if( accu(diff % diff) < tol)
+      if (accu(diff % diff) < tol)
         break;
       else
         mu0 = mu;
 
-     // cout << compTotalLoglik() << endl;
+      // cout << compTotalLoglik() << endl;
     }
   }
 
-  void runQNEM(int steps) {
-    Expectation();
+  uvec clusteringMAP() { return arma::index_max(zeta, 1); }
 
-    GradientDescent(steps);
-
-  }
+  // void runQNEM(int steps) {
+  // Expectation();
+  // GradientDescent(steps);
+  // }
 };
