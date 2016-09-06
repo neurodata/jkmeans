@@ -63,7 +63,7 @@ experiment<- function(n){
 }
 
 
-nSeries<- c(seq(20,100,by = 20),150,200,300,400,500)	
+nSeries<- seq(20,500,by = 20)
 
 MCEmean<- numeric()	
 MCEq25<- numeric()	
