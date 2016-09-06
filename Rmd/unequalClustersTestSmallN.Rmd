@@ -17,13 +17,13 @@ require('jkmeans')
 
 
 ###1. Generate Data
-Let's generate data from 2 clusters, each of size n
+Let's generate data from 2 clusters, with size n/2, n/2*3
 
 N( c(0.7,0.3), diag(1.7661/n))
 N( c(0.3,0.7), diag(1.7661/n))
 
 ```{r}
-n<- 100
+n<- 30
 K<- 2
 p<- 2
 batchN<- 10000
@@ -33,8 +33,8 @@ yBatch<- array(0,dim = c(n*K,p,batchN))
 
 mu0<- c(c(0.7,0.3), c(0.3,0.7))
 mu<- matrix( 0,n*2,p)
-mu[1:n,]<- rep(c(0.7,0.3),each=n)
-mu[(n+1):(2*n),]<- rep(c(0.3,0.7),each=n)
+mu[1:(n/2),]<- rep(c(0.7,0.3),each=(n/2))
+mu[(n/2+1):(2*n),]<- rep(c(0.3,0.7),each=(n/2*3))
 
 sigma<-  sqrt(1.7661/30)
 
@@ -50,7 +50,8 @@ computeMError<- function(jk, n){
   error<- numeric(batchN)
   for(b in 1:batchN){
     newOrder<- order(jk$mu[,1,b],decreasing = T)
-    trueM<- rep( c(0,1)[newOrder], each=n)
+    tM0<- c(0,1)[newOrder]
+    trueM<- c(rep(tM0[1],(n/2)),rep(tM0[2],(n/2*3)))
     error[b]<- sum (jk$M[,b] != trueM) /2/n
   }
   error
