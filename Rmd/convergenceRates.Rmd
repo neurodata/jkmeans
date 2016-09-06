@@ -12,6 +12,8 @@ install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 require('ggplot2')
 require('reshape')
 require('jkmeans')
+
+setwd("~/git/jkmeans/Rmd/")
 ```
 
 
@@ -92,7 +94,7 @@ computeRMSE<- function(jk, mu0, batchN){
 
 ```
 
-###2. Test jk-means/ j-sparse-GMM with different n
+###2. Test jk-means/ j-sparse-GMM with different n's
 
 
 
@@ -141,50 +143,92 @@ experiment<- function(n){
 
 ```{r}
 #code to run on an increasing series of n
+#ran on cluster
+
+nSeries<- c(seq(20,500,by = 20))
 
 if(FALSE)
 {
-  nSeries<- c(seq(20,100,by = 20),150,200,300,400,500)
-
-MCEmean<- numeric()
-MCEq25<- numeric()
-MCEq975<- numeric()
-RMSEmean<- numeric()
-RMSEq25<- numeric()
-RMSEq975<- numeric()
-
-
-for(n in nSeries){
-  test<-experiment(n)
   
-  MCEmean <- rbind(MCEmean,colMeans(test$MCE,na.rm = T))
-  MCEq25 <- rbind(MCEq25, apply(test$MCE, MARGIN = 2, function(x){quantile(x,probs = 0.025,na.rm = T)}))
-  MCEq975 <- rbind(MCEq975, apply(test$MCE, MARGIN = 2, function(x){quantile(x,probs = 0.975,na.rm = T)}))
+  MCEmean<- numeric()
+  MCEq25<- numeric()
+  MCEq975<- numeric()
+  RMSEmean<- numeric()
+  RMSEq25<- numeric()
+  RMSEq975<- numeric()
   
-  RMSEmean<- rbind(RMSEmean, colMeans(test$RMSE,na.rm = T))
-  RMSEq25<- rbind(RMSEq25, apply(test$RMSE, MARGIN = 2, function(x){quantile(x,probs = 0.025,na.rm = T)}))
-  RMSEq975<-  rbind(RMSEq975, apply(test$RMSE, MARGIN = 2, function(x){quantile(x,probs = 0.975,na.rm = T)}))
   
-  print(n)
-}
-
-
-result<- list("MCEmean"=MCEmean,
-     "MCEq25"=MCEq25,
-     "MCEq975"=MCEq975,
-     "RMSEmean"=RMSEmean,
-     "RMSEq25"=RMSEq25,
-     "RMSEq975"=RMSEq975)
-
-save(result, file="resultRates.Rda")
+  for(n in nSeries){
+    test<-experiment(n)
+    
+    MCEmean <- rbind(MCEmean,colMeans(test$MCE,na.rm = T))
+    MCEq25 <- rbind(MCEq25, apply(test$MCE, MARGIN = 2, function(x){quantile(x,probs = 0.025,na.rm = T)}))
+    MCEq975 <- rbind(MCEq975, apply(test$MCE, MARGIN = 2, function(x){quantile(x,probs = 0.975,na.rm = T)}))
+    
+    RMSEmean<- rbind(RMSEmean, colMeans(test$RMSE,na.rm = T))
+    RMSEq25<- rbind(RMSEq25, apply(test$RMSE, MARGIN = 2, function(x){quantile(x,probs = 0.025,na.rm = T)}))
+    RMSEq975<-  rbind(RMSEq975, apply(test$RMSE, MARGIN = 2, function(x){quantile(x,probs = 0.975,na.rm = T)}))
+    
+    print(n)
+  }
+  
+  
+  result<- list("MCEmean"=MCEmean,
+                "MCEq25"=MCEq25,
+                "MCEq975"=MCEq975,
+                "RMSEmean"=RMSEmean,
+                "RMSEq25"=RMSEq25,
+                "RMSEq975"=RMSEq975)
+  
+  save(result, file="resultRates.Rda")
 }
 
 ```
+
+
+#Misclassification error
+plot without & with pointwise 95% confidence band
 
 ```{r}
 
 load("resultRates.Rda")
 
+plot1<- data.frame( "n" = rep(nSeries, 4),
+            "MC14Error"= c(result$MCEmean),
+            "MC14ErrorL"= c(result$MCEq25),
+            "MC14ErrorU"= c(result$MCEq975),
+            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM"),each= length(nSeries))
+            )
 
+p<- ggplot(data=plot1, aes())
+p<- p+  geom_line(aes(x= n, y=MC14Error, colour=Model)) 
+pE<- p+  geom_line(aes(x= n, y=MC14ErrorL, colour=Model),linetype=2) 
+pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2) 
+
+# p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
+p+ theme_bw()
+pE + theme_bw()
 ```
 
+#RMSE for the mean estimate
+plot without & with pointwise 95% confidence band
+
+```{r}
+
+plot1<- data.frame( "n" = rep(nSeries, 4),
+            "RMSE"= c(result$RMSEmean),
+            "RMSEL"= c(result$RMSEq25),
+            "RMSEU"= c(result$RMSEq975),
+            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM"),each= length(nSeries))
+            )
+
+p<- ggplot(data=plot1, aes())
+p<- p+  geom_line(aes(x= n, y=RMSE, colour=Model)) 
+
+pE<- p+  geom_line(aes(x= n, y=RMSEL, colour=Model),linetype=2) 
+pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2) 
+
+
+p+ theme_bw()
+pE + theme_bw()
+```
