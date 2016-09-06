@@ -61,10 +61,9 @@ experiment<- function(n){
   
   list("MCE"=error, "RMSE"=rmse)	
 }
-# nSeries<- c(seq(20,100,by = 20),150,200,300,400,500)	
 
 
-nSeries <- c(20,40)
+nSeries<- c(seq(20,100,by = 20),150,200,300,400,500)	
 
 MCEmean<- numeric()	
 MCEq25<- numeric()	
