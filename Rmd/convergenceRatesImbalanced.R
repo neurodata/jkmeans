@@ -14,8 +14,8 @@ yBatch<- array(0,dim = c(n*K,p,batchN))
 
 mu0<- c(c(0.3), c(0.7))
 mu<- matrix( 0,n*2,p)
-mu[1:(n),]<- rep(c(0.3),each=(n))
-mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
+mu[1:(n/2),]<- rep(c(0.3),each=(n/2))
+mu[(n/2+1):(2*n),]<- rep(c(0.7),each=(n/2*3))
 
 sigma<-  sqrt(1.7661/30)
 
@@ -31,13 +31,11 @@ dataHist<- data.frame("Mu"=as.factor(mu),    "y"= yBatch[,,1])
 ggplot(dataHist, aes(y, fill = as.factor(Mu))) + geom_histogram(alpha = 0.2,bins = 30,  position="identity")
 
 
-
-
 computeMError<- function(jk, n,batchN){
 error<- numeric(batchN)
 for(b in 1:batchN){
 tM0<- rank(jk$mu[,1,b])-1
-trueM<- rep(tM0,each=n)
+trueM<- c(rep(tM0[1],(n/2)),rep(tM0[2],(n/2*3)))
 error[b]<- sum ( jk$M[,b] != trueM) /K/n
 if( min(jk$w[,b])<0.1){
 error[b]<- NA
@@ -61,7 +59,6 @@ rmse
 }
 
 
-
 experiment<- function(n){
   
   K<- 2
@@ -72,8 +69,9 @@ experiment<- function(n){
   
   mu0<- c(c(0.3), c(0.7))
   mu<- matrix( 0,n*2,p)
-  mu[1:(n),]<- rep(c(0.3),each=(n))
-  mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
+  mu[1:(n/2),]<- rep(c(0.3),each=(n/2))
+  mu[(n/2+1):(2*n),]<- rep(c(0.7),each=(n/2*3))
+  
   
   sigma<-  sqrt(1.7661/30)
   
@@ -97,11 +95,9 @@ experiment<- function(n){
   
 }
 
-
-
-
 nSeries<- c(seq(20,500,by = 20))
 
+# if(FALSE)
 {
   
   MCEmean<- numeric()
@@ -134,5 +130,5 @@ nSeries<- c(seq(20,500,by = 20))
                 "RMSEq25"=RMSEq25,
                 "RMSEq975"=RMSEq975)
   
-  save(result, file="resultRatesBalanced.Rda")
+  save(result, file="resultRatesImbalanced.Rda")
 }

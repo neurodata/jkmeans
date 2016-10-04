@@ -127,5 +127,5 @@ nSeries<- c(seq(20,500,by = 20))
                 "RMSEq25"=RMSEq25,
                 "RMSEq975"=RMSEq975)
   
-  save(result, file="resultRatesBalanced.Rda")
+  save(result, file="resultRatesBigK.Rda")
 }

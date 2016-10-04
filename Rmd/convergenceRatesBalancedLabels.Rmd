@@ -40,10 +40,10 @@ batchN<- 1000
 
 yBatch<- array(0,dim = c(n*K,p,batchN))
 
-mu0<- c(c(0.7), c(0.3))
+mu0<- c(c(0.3), c(0.7))
 mu<- matrix( 0,n*2,p)
-mu[1:(n),]<- rep(c(0.7),each=(n))
-mu[(n+1):(2*n),]<- rep(c(0.3),each=(n))
+mu[1:(n),]<- rep(c(0.3),each=(n))
+mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
 
 sigma<-  sqrt(1.7661/30)
 
@@ -117,10 +117,10 @@ experiment<- function(n){
   
   yBatch<- array(0,dim = c(n*K,p,batchN))
   
-  mu0<- c(c(0.7), c(0.3))
-  mu<- matrix( 0,n*2,p)
-  mu[1:(n),]<- rep(c(0.7),each=(n))
-  mu[(n+1):(2*n),]<- rep(c(0.3),each=(n))
+mu0<- c(c(0.3), c(0.7))
+mu<- matrix( 0,n*2,p)
+mu[1:(n),]<- rep(c(0.3),each=(n))
+mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
   
   sigma<-  sqrt(1.7661/30)
   

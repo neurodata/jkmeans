@@ -29,8 +29,8 @@ setwd("~/git/jkmeans/Rmd/")
 ###1. Generate Data
 Let's generate data from 2 clusters, with size n/2, n/2*3
 
-N( c(0.7), diag(1.7661/30))
 N( c(0.3), diag(1.7661/30))
+N( c(0.7), diag(1.7661/30))
 
 ```{r}
 n<- 100
@@ -40,10 +40,10 @@ batchN<- 1000
 
 yBatch<- array(0,dim = c(n*K,p,batchN))
 
-mu0<- c(c(0.7), c(0.3))
+mu0<- c(c(0.3), c(0.7))
 mu<- matrix( 0,n*2,p)
-mu[1:(n/2),]<- rep(c(0.7),each=(n/2))
-mu[(n/2+1):(2*n),]<- rep(c(0.3),each=(n/2*3))
+mu[1:(n/2),]<- rep(c(0.3),each=(n/2))
+mu[(n/2+1):(2*n),]<- rep(c(0.7),each=(n/2*3))
 
 sigma<-  sqrt(1.7661/30)
 
@@ -119,11 +119,11 @@ experiment<- function(n){
   
   yBatch<- array(0,dim = c(n*K,p,batchN))
   
-  mu0<- c(c(0.7), c(0.3))
+  mu0<- c(c(0.3), c(0.7))
   mu<- matrix( 0,n*2,p)
-  mu[1:(n/2),]<- rep(c(0.7),each=(n/2))
-  mu[(n/2+1):(2*n),]<- rep(c(0.3),each=(n/2*3))
-  
+  mu[1:(n/2),]<- rep(c(0.3),each=(n/2))
+  mu[(n/2+1):(2*n),]<- rep(c(0.7),each=(n/2*3))
+
   sigma<-  sqrt(1.7661/30)
   
   for(b in 1:batchN){
@@ -190,7 +190,7 @@ if(FALSE)
                 "RMSEq25"=RMSEq25,
                 "RMSEq975"=RMSEq975)
   
-  save(result, file="resultRates.Rda")
+  save(result, file="resultRatesImbalanced.Rda")
 }
 
 ```
@@ -201,7 +201,7 @@ plot without & with pointwise 95% confidence band
 
 ```{r}
 
-load("resultRates.Rda")
+load("resultRatesImbalanced.Rda")
 
 plot1<- data.frame( "n" = rep(nSeries, 4),
             "MC14Error"= c(result$MCEmean),
