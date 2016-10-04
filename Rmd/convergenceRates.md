@@ -1,38 +1,17 @@
----
-title: "jk test with unbalanced label"
-author: "Author"
-date: '`r Sys.Date()`'
-output:
-  md_document: 
-    variant: markdown_github
----
+    ###Prerequisite
+    ###Install the package if you haven't
+    setwd("~/git/")
+    require('devtools')
+    build('jkmeans')
+    install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 
+### 1. Generate Data
 
-```
-###Prerequisite
-###Install the package if you haven't
-setwd("~/git/")
-require('devtools')
-build('jkmeans')
-install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
-```
+Let's generate data from 2 clusters, with size n/2, n/2\*3
 
-```{r include=FALSE}
-require('ggplot2')
-require('reshape')
-require('jkmeans')
+N( c(0.7), diag(1.7661/30)) N( c(0.3), diag(1.7661/30))
 
-setwd("~/git/jkmeans/Rmd/")
-```
-
-
-###1. Generate Data
-Let's generate data from 2 clusters, with size n/2, n/2*3
-
-N( c(0.7), diag(1.7661/30))
-N( c(0.3), diag(1.7661/30))
-
-```{r}
+``` r
 n<- 100
 K<- 2
 p<- 1
@@ -52,28 +31,21 @@ for(b in 1:batchN){
 }
 
 mu_ini<- matrix(mu0,K,p)
-
 ```
 
-
 Here is a view of the two clusters
-```{r}
 
-
+``` r
 dataHist<- data.frame("Mu"=as.factor(mu),    "y"= yBatch[,,1])
 
 ggplot(dataHist, aes(y, fill = as.factor(Mu))) + geom_histogram(alpha = 0.2,bins = 30,  position="identity")
-
-
-
-
 ```
 
+![](convergenceRates_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
-functions to compute misclassification error and rmse of mean estimate:
-NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
-```{r}
+functions to compute misclassification error and rmse of mean estimate: NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
 
+``` r
 computeMError<- function(jk, n,batchN){
   error<- numeric(batchN)
   for(b in 1:batchN){
@@ -100,17 +72,11 @@ computeRMSE<- function(jk, mu0, batchN){
   }
   rmse
 }
-
-
 ```
 
-###2. Test jk-means/ j-sparse-GMM with different n's
+### 2. Test jk-means/ j-sparse-GMM with different n's
 
-
-
-```{r}
-
-
+``` r
 experiment<- function(n){
   
   K<- 2
@@ -145,13 +111,9 @@ experiment<- function(n){
   list("MCE"=error, "RMSE"=rmse)
   
 }
-  
-
 ```
 
-
-
-```{r}
+``` r
 #code to run on an increasing series of n
 #ran on cluster
 
@@ -192,15 +154,14 @@ if(FALSE)
   
   save(result, file="resultRates.Rda")
 }
-
 ```
 
+Misclassification error
+=======================
 
-#Misclassification error
 plot without & with pointwise 95% confidence band
 
-```{r}
-
+``` r
 load("resultRates.Rda")
 
 plot1<- data.frame( "n" = rep(nSeries, 4),
@@ -217,14 +178,22 @@ pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2)
 
 # p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
 p+ theme_bw()
+```
+
+![](convergenceRates_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+``` r
 pE + theme_bw()
 ```
 
-#RMSE for the mean estimate
+![](convergenceRates_files/figure-markdown_github/unnamed-chunk-7-2.png)
+
+RMSE for the mean estimate
+==========================
+
 plot without & with pointwise 95% confidence band
 
-```{r}
-
+``` r
 plot1<- data.frame( "n" = rep(nSeries, 4),
             "RMSE"= c(result$RMSEmean),
             "RMSEL"= c(result$RMSEq25),
@@ -240,5 +209,12 @@ pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2)
 
 
 p+ theme_bw()
+```
+
+![](convergenceRates_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+``` r
 pE + theme_bw()
 ```
+
+![](convergenceRates_files/figure-markdown_github/unnamed-chunk-8-2.png)

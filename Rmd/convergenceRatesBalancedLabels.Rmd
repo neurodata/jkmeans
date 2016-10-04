@@ -1,3 +1,12 @@
+---
+title: "jk test with balanced label"
+author: "Author"
+date: '`r Sys.Date()`'
+output:
+  md_document: 
+    variant: markdown_github
+---
+
 
 ```
 ###Prerequisite
@@ -67,10 +76,9 @@ NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test res
 computeMError<- function(jk, n,batchN){
   error<- numeric(batchN)
   for(b in 1:batchN){
-    newOrder<- order(jk$mu[,1,b],decreasing = T)
-    tM0<- c(0,1)[newOrder]
-    trueM<- c(rep(tM0[1],(n)),rep(tM0[2],(n)))
-    error[b]<- sum (jk$M[,b] != trueM) /2/n
+    tM0<- rank(jk$mu[,1,b])-1
+    trueM<- rep(tM0,each=n)
+    error[b]<- sum ( jk$M[,b] != trueM) /K/n
     if( min(jk$w[,b])<0.1){
         error[b]<- NA
     }
@@ -81,7 +89,7 @@ computeMError<- function(jk, n,batchN){
 computeRMSE<- function(jk, mu0, batchN){
   rmse<- numeric(batchN)
   for(b in 1:batchN){
-    newOrder<- order(jk$mu[,1,b],decreasing = T)
+    newOrder<- order(jk$mu[,1,b],decreasing = F)
     
     muEst<-as.matrix(jk$mu[,,b])[newOrder,]
    
