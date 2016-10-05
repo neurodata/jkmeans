@@ -36,7 +36,7 @@ computeMError<- function(jk, n,batchN){
     tM0<- rank(jk$mu[,1,b])-1
     trueM<- rep(tM0,each=n)
     error[b]<- sum ( jk$M[,b] != trueM) /K/n
-    if( min(jk$w[,b])<0.1){
+    if( min(jk$w[,b])<0.01){
         error[b]<- NA
     }
   }
@@ -51,7 +51,7 @@ computeRMSE<- function(jk, mu0, batchN){
     muEst<-as.matrix(jk$mu[,,b])[newOrder,]
    
     rmse[b]<- sqrt( mean((muEst - mu0)^2))
-    if( min(jk$w[,b])<0.1)
+    if( min(jk$w[,b])<0.01)
       rmse[b]<- NA
   }
   rmse

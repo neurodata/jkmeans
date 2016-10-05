@@ -1,78 +1,58 @@
----
-title: "jk test with big K, balanced label"
-author: "Author"
-date: '`r Sys.Date()`'
-output:
-  md_document: 
-    variant: markdown_github
----
+I    ###Prerequisite
+    ###Install the package if you haven't
+    setwd("~/git/")
+    require('devtools')
+    build('jkmeans')
+    install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 
+### 1. Generate Data
 
-```
-###Prerequisite
-###Install the package if you haven't
-setwd("~/git/")
-require('devtools')
-build('jkmeans')
-install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
-```
+Let's generate data from 2 clusters, with size n, n
 
-```{r include=FALSE}
-require('ggplot2')
-require('reshape')
-require('jkmeans')
+N( c(0.7), diag(1.7661/30)) N( c(0.3), diag(1.7661/30))
 
-setwd("~/git/jkmeans/Rmd/")
-```
-
-
-###1. Generate Data
-Let's generate data:
-
-```{r}
+``` r
 n<- 100
-K<- 10
+K<- 2
 p<- 1
 batchN<- 1000
 
 yBatch<- array(0,dim = c(n*K,p,batchN))
 
-mu0<- c(1:K)
-mu<- matrix( 0,n*K,p)
-mu <- rep(mu0, each = n)
-sigma<-  0.5
+mu0<- c(c(0.3), c(0.7))
+mu<- matrix( 0,n*2,p)
+mu[1:(n),]<- rep(c(0.3),each=(n))
+mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
+
+sigma<-  sqrt(1.7661/30)
 
 for(b in 1:batchN){
-  yBatch[,,b]<- matrix( rnorm(n*p*K,mu,sigma), n*K, p)
+  yBatch[,,b]<- matrix( rnorm(n*p*2,mu,sigma), n*K, p)
 }
 
 mu_ini<- matrix(mu0,K,p)
-
 ```
 
-
 Here is a view of the two clusters
-```{r}
 
-
+``` r
 dataHist<- data.frame("Mu"=as.factor(mu),    "y"= yBatch[,,1])
 
 ggplot(dataHist, aes(y, fill = as.factor(Mu))) + geom_histogram(alpha = 0.2,bins = 30,  position="identity")
-
-
 ```
 
+![](convergenceRatesBalancedLabels_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
-functions to compute misclassification error and rmse of mean estimate:
-NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
-```{r}
+functions to compute misclassification error and rmse of mean estimate: NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
+
+``` r
 computeMError<- function(jk, n,batchN){
   error<- numeric(batchN)
   for(b in 1:batchN){
     tM0<- rank(jk$mu[,1,b])-1
     trueM<- rep(tM0,each=n)
     error[b]<- sum ( jk$M[,b] != trueM) /K/n
-    if( min(jk$w[,b])<0.01){
+    if( min(jk$w[,b])<0.1){
         error[b]<- NA
     }
   }
@@ -87,46 +67,42 @@ computeRMSE<- function(jk, mu0, batchN){
     muEst<-as.matrix(jk$mu[,,b])[newOrder,]
    
     rmse[b]<- sqrt( mean((muEst - mu0)^2))
-    if( min(jk$w[,b])<0.01)
+    if( min(jk$w[,b])<0.1)
       rmse[b]<- NA
   }
   rmse
 }
-
 ```
 
-###2. Test jk-means/ j-sparse-GMM with different n's
+### 2. Test jk-means/ j-sparse-GMM with different n's
 
-
-
-```{r}
-
-
+``` r
 experiment<- function(n){
   
+  K<- 2
   p<- 1
   batchN<- 1000
   
   yBatch<- array(0,dim = c(n*K,p,batchN))
-  K<- 10
   
-  mu0<- c(1:K)
-  mu<- matrix( 0,n*K,p)
-  mu <- rep(mu0, each = n)
-  sigma<-  0.5
-
-
+mu0<- c(c(0.3), c(0.7))
+mu<- matrix( 0,n*2,p)
+mu[1:(n),]<- rep(c(0.3),each=(n))
+mu[(n+1):(2*n),]<- rep(c(0.7),each=(n))
+  
+  sigma<-  sqrt(1.7661/30)
+  
   for(b in 1:batchN){
-    yBatch[,,b]<- matrix( rnorm(n*p*K,mu,sigma), n*K, p)
+    yBatch[,,b]<- matrix( rnorm(n*p*2,mu,sigma), n*K, p)
   }
   
   mu_ini<- matrix(mu0,K,p)
   
   
-  jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=K, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
-  jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=K, j = K,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
-  jGMM12 <- jkmeans::jkmeansEMBatch(yBatch, k=K, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
-  jGMM22 <- jkmeans::jkmeansEMBatch(yBatch, k=K, j = K,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
+  jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
+  jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
+  jGMM12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
+  jGMM22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
 
   
   error <- cbind( computeMError(jk12,n, batchN), computeMError(jk22,n,batchN), computeMError(jGMM12,n,batchN),computeMError(jGMM22,n,batchN))
@@ -135,13 +111,9 @@ experiment<- function(n){
   list("MCE"=error, "RMSE"=rmse)
   
 }
-  
-
 ```
 
-
-
-```{r}
+``` r
 #code to run on an increasing series of n
 #ran on cluster
 
@@ -180,18 +152,17 @@ if(FALSE)
                 "RMSEq25"=RMSEq25,
                 "RMSEq975"=RMSEq975)
   
-  save(result, file="resultRatesBigK.Rda")
+  save(result, file="resultRatesBalanced.Rda")
 }
-
 ```
 
+Misclassification error
+=======================
 
-#Misclassification error
 plot without & with pointwise 95% confidence band
 
-```{r}
-
-load("resultRatesBigK.Rda")
+``` r
+load("resultRatesBalanced.Rda")
 
 plot1<- data.frame( "n" = rep(nSeries, 4),
             "MC14Error"= c(result$MCEmean),
@@ -207,14 +178,22 @@ pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2)
 
 # p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
 p+ theme_bw()
+```
+
+![](convergenceRatesBalancedLabels_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+``` r
 pE + theme_bw()
 ```
 
-#RMSE for the mean estimate
+![](convergenceRatesBalancedLabels_files/figure-markdown_github/unnamed-chunk-7-2.png)
+
+RMSE for the mean estimate
+==========================
+
 plot without & with pointwise 95% confidence band
 
-```{r}
-
+``` r
 plot1<- data.frame( "n" = rep(nSeries, 4),
             "RMSE"= c(result$RMSEmean),
             "RMSEL"= c(result$RMSEq25),
@@ -230,5 +209,12 @@ pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2)
 
 
 p+ theme_bw()
+```
+
+![](convergenceRatesBalancedLabels_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+``` r
 pE + theme_bw()
 ```
+
+![](convergenceRatesBalancedLabels_files/figure-markdown_github/unnamed-chunk-8-2.png)
