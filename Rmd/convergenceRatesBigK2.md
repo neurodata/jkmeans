@@ -1,4 +1,4 @@
-√    ###Prerequisite
+    ###Prerequisite
     ###Install the package if you haven't
     setwd("~/git/")
     require('devtools')
@@ -37,7 +37,7 @@ dataHist<- data.frame("Mu"=as.factor(mu),    "y"= yBatch[,,1])
 ggplot(dataHist, aes(y, fill = as.factor(Mu))) + geom_histogram(alpha = 0.2,bins = 30,  position="identity")
 ```
 
-![](convergenceRatesBigK_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](convergenceRatesBigK2_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 functions to compute misclassification error and rmse of mean estimate: NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
 
@@ -147,7 +147,7 @@ if(FALSE)
                 "RMSEq25"=RMSEq25,
                 "RMSEq975"=RMSEq975)
   
-  save(result, file="resultRatesBigK.Rda")
+  save(result, file="resultRatesBigK2.Rda")
 }
 ```
 
@@ -157,7 +157,7 @@ Misclassification error
 plot without & with pointwise 95% confidence band
 
 ``` r
-load("resultRatesBigK.Rda")
+load("resultRatesBigK2.Rda")
 
 plot1<- data.frame( "n" = rep(nSeries, 4),
             "MC14Error"= c(result$MCEmean),
@@ -175,13 +175,13 @@ pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2)
 p+ theme_bw()
 ```
 
-![](convergenceRatesBigK_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](convergenceRatesBigK2_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
 pE + theme_bw()
 ```
 
-![](convergenceRatesBigK_files/figure-markdown_github/unnamed-chunk-7-2.png)
+![](convergenceRatesBigK2_files/figure-markdown_github/unnamed-chunk-7-2.png)
 
 RMSE for the mean estimate
 ==========================
@@ -206,10 +206,10 @@ pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2)
 p+ theme_bw()
 ```
 
-![](convergenceRatesBigK_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](convergenceRatesBigK2_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 pE + theme_bw()
 ```
 
-![](convergenceRatesBigK_files/figure-markdown_github/unnamed-chunk-8-2.png)
+![](convergenceRatesBigK2_files/figure-markdown_github/unnamed-chunk-8-2.png)
