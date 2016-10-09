@@ -13,15 +13,16 @@ using namespace arma;
 
 // [[Rcpp::export]]
 Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
-                     double tol = 1E-8, bool fixW = true,
-                     bool useKmeansIni = true, const arma::mat& meansIni = 0) {
+                     double tol = 1E-8, bool fixW = true, bool flexJ = false,
+                     double zetaTrunc = 0.01, bool useKmeansIni = true,
+                     const arma::mat& meansIni = 0) {
   Mixture mix(y, k, j);
 
   if (j > k) {
     throw std::range_error("j needs be no bigger than k");
   }
 
-  mix.initialize(meansIni, useKmeansIni, fixW);
+  mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc);
 
   mix.runEM(steps, tol);
 
@@ -34,6 +35,7 @@ Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
 // [[Rcpp::export]]
 Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
                           double tol = 1E-8, bool fixW = true,
+                          bool flexJ = false, double zetaTrunc = 0.01,
                           bool useKmeansIni = true,
                           const arma::mat& meansIni = 0) {
   if (j > k) {
@@ -54,7 +56,7 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
   for (int i = 0; i < batchN; ++i) {
     mat localY = y.slice(i);
     Mixture mix(localY, k, j);
-    mix.initialize(meansIni, useKmeansIni, fixW);
+    mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc);
     mix.runEM(steps, tol);
 
     mu.slice(i) = mix.mu;

@@ -17,6 +17,8 @@ class Mixture {
   mat hessian;
 
   bool fixW;
+  bool flexJ;
+  double zetaTrunc;
 
   Mixture(mat _y, int _K, int _J) {
     y = _y;
@@ -42,7 +44,8 @@ class Mixture {
     hessian = zeros<mat>(p * K, p * K);
   }
 
-  void initialize(mat meansInput, bool useKmeansIni, bool _fixW) {
+  void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
+                  double _zetaTrunc) {
     if (useKmeansIni) {
       mat means;
       bool status = kmeans(means, trans(y), K, random_subset, 10, false);
@@ -52,6 +55,8 @@ class Mixture {
     }
 
     fixW = _fixW;
+    flexJ = _flexJ;
+    zetaTrunc = _zetaTrunc;
   }
 
   double loglik(rowvec x, rowvec mu, double sigma2) {
@@ -93,18 +98,20 @@ class Mixture {
 
       local_zeta -= local_zeta.max();
 
-      // if(local_zeta.has_nan()){
-      //   cout<< local_zeta<<endl;
-      //   cout<< zeta<<endl;
-      // }
+      if (!flexJ) {
+        uvec indices = sort_index(local_zeta, "descend");
 
-      uvec indices = sort_index(local_zeta, "descend");
+        int trunc_idx = indices(J - 1);
 
-      int trunc_idx = indices(J - 1);
+        local_zeta = exp(local_zeta);
 
-      local_zeta = exp(local_zeta);
-
-      local_zeta(find(local_zeta < local_zeta(trunc_idx))).fill(0);
+        local_zeta(find(local_zeta < local_zeta(trunc_idx))).fill(0);
+      }
+      if (flexJ) {
+        local_zeta = exp(local_zeta);
+        local_zeta /= accu(local_zeta);
+        local_zeta(find(local_zeta < zetaTrunc)).fill(0);
+      }
 
       zeta.row(i) = local_zeta / accu(local_zeta);
     }
