@@ -103,10 +103,13 @@ experiment<- function(n){
   jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
   jGMM12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
   jGMM22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
+  
+  jGMMFlex <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F,flexJ = T,zetaTrunc = 0.05)
+
 
   
-  error <- cbind( computeMError(jk12,n, batchN), computeMError(jk22,n,batchN), computeMError(jGMM12,n,batchN),computeMError(jGMM22,n,batchN))
-  rmse <- cbind( computeRMSE(jk12,mu0,batchN), computeRMSE(jk22,mu0,batchN), computeRMSE(jGMM12,mu0,batchN),computeRMSE(jGMM22,mu0,batchN))
+  error <- cbind( computeMError(jk12,n, batchN), computeMError(jk22,n,batchN), computeMError(jGMM12,n,batchN),computeMError(jGMM22,n,batchN), computeMError(jGMMFlex,n,batchN)  )
+  rmse <- cbind( computeRMSE(jk12,mu0,batchN), computeRMSE(jk22,mu0,batchN), computeRMSE(jGMM12,mu0,batchN),computeRMSE(jGMM22,mu0,batchN), computeRMSE(jGMMFlex,mu0,batchN))
     
   list("MCE"=error, "RMSE"=rmse)
   
@@ -164,11 +167,11 @@ plot without & with pointwise 95% confidence band
 ``` r
 load("resultRatesImbalanced.Rda")
 
-plot1<- data.frame( "n" = rep(nSeries, 4),
+plot1<- data.frame( "n" = rep(nSeries, 5),
             "MC14Error"= c(result$MCEmean),
             "MC14ErrorL"= c(result$MCEq25),
             "MC14ErrorU"= c(result$MCEq975),
-            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM"),each= length(nSeries))
+            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM","flexJGMM"),each= length(nSeries))
             )
 
 p<- ggplot(data=plot1, aes())
@@ -194,11 +197,11 @@ RMSE for the mean estimate
 plot without & with pointwise 95% confidence band
 
 ``` r
-plot1<- data.frame( "n" = rep(nSeries, 4),
+plot1<- data.frame( "n" = rep(nSeries, 5),
             "RMSE"= c(result$RMSEmean),
             "RMSEL"= c(result$RMSEq25),
             "RMSEU"= c(result$RMSEq975),
-            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM"),each= length(nSeries))
+            "Model"= rep(c("K-Means","W-constraint-GMM (22-Means)","1-sparse-GMM","GMM","flexJGMM"),each= length(nSeries))
             )
 
 p<- ggplot(data=plot1, aes())
