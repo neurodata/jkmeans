@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // jkmeansEM
-Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps, double tol, bool fixW, bool flexJ, double zetaTrunc, bool useKmeansIni, const arma::mat& meansIni);
-RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP flexJSEXP, SEXP zetaTruncSEXP, SEXP useKmeansIniSEXP, SEXP meansIniSEXP) {
+Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps, double tol, bool fixW, bool flexJ, double zetaTrunc, bool useKmeansIni, const arma::mat& meansIni, double sigma2_ini);
+RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP flexJSEXP, SEXP zetaTruncSEXP, SEXP useKmeansIniSEXP, SEXP meansIniSEXP, SEXP sigma2_iniSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -22,13 +22,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type zetaTrunc(zetaTruncSEXP);
     Rcpp::traits::input_parameter< bool >::type useKmeansIni(useKmeansIniSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type meansIni(meansIniSEXP);
-    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni));
+    Rcpp::traits::input_parameter< double >::type sigma2_ini(sigma2_iniSEXP);
+    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni, sigma2_ini));
     return __result;
 END_RCPP
 }
 // jkmeansEMBatch
-Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps, double tol, bool fixW, bool flexJ, double zetaTrunc, bool useKmeansIni, const arma::mat& meansIni);
-RcppExport SEXP jkmeans_jkmeansEMBatch(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP flexJSEXP, SEXP zetaTruncSEXP, SEXP useKmeansIniSEXP, SEXP meansIniSEXP) {
+Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps, double tol, bool fixW, bool flexJ, double zetaTrunc, bool useKmeansIni, const arma::mat& meansIni, double sigma2_ini);
+RcppExport SEXP jkmeans_jkmeansEMBatch(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP flexJSEXP, SEXP zetaTruncSEXP, SEXP useKmeansIniSEXP, SEXP meansIniSEXP, SEXP sigma2_iniSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -42,7 +43,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type zetaTrunc(zetaTruncSEXP);
     Rcpp::traits::input_parameter< bool >::type useKmeansIni(useKmeansIniSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type meansIni(meansIniSEXP);
-    __result = Rcpp::wrap(jkmeansEMBatch(y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni));
+    Rcpp::traits::input_parameter< double >::type sigma2_ini(sigma2_iniSEXP);
+    __result = Rcpp::wrap(jkmeansEMBatch(y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni, sigma2_ini));
     return __result;
 END_RCPP
 }

@@ -33,11 +33,6 @@ class Mixture {
     mu = ones<mat>(K, p);
     mu.randn();
 
-    mat means;
-    bool status = kmeans(means, trans(y), K, random_subset, 10, false);
-
-    mu = means.t();
-
     zeta = ones<mat>(n, K);
 
     gradient = zeros(p * K);
@@ -45,7 +40,9 @@ class Mixture {
   }
 
   void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
-                  double _zetaTrunc) {
+                  double _zetaTrunc, double sigma2_ini) {
+    sigma2 = sigma2_ini;
+
     if (useKmeansIni) {
       mat means;
       bool status = kmeans(means, trans(y), K, random_subset, 10, false);

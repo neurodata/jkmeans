@@ -15,14 +15,14 @@ using namespace arma;
 Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
                      double tol = 1E-8, bool fixW = true, bool flexJ = false,
                      double zetaTrunc = 0.01, bool useKmeansIni = true,
-                     const arma::mat& meansIni = 0) {
+                     const arma::mat& meansIni = 0, double sigma2_ini = 0.1) {
   Mixture mix(y, k, j);
 
   if (j > k) {
     throw std::range_error("j needs be no bigger than k");
   }
 
-  mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc);
+  mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc, sigma2_ini);
 
   mix.runEM(steps, tol);
 
@@ -37,7 +37,8 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
                           double tol = 1E-8, bool fixW = true,
                           bool flexJ = false, double zetaTrunc = 0.01,
                           bool useKmeansIni = true,
-                          const arma::mat& meansIni = 0) {
+                          const arma::mat& meansIni = 0,
+                          double sigma2_ini = 0.1) {
   if (j > k) {
     throw std::range_error("j needs be no bigger than k");
   }
@@ -56,7 +57,7 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
   for (int i = 0; i < batchN; ++i) {
     mat localY = y.slice(i);
     Mixture mix(localY, k, j);
-    mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc);
+    mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc, sigma2_ini);
     mix.runEM(steps, tol);
 
     mu.slice(i) = mix.mu;
@@ -70,20 +71,3 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
                             Rcpp::Named("sigma2") = sigma2,
                             Rcpp::Named("zeta") = zeta, Rcpp::Named("M") = M);
 }
-
-// // [[Rcpp::export]]
-// Rcpp::List jkmeansQNEM(const arma::mat& y, int k, int j, int steps = 1000) {
-//   Mixture mix(y, k, j);
-
-//     if (j > k) {
-//         throw std::range_error("j needs be no bigger than k");
-//     }
-
-//   mix.runQNEM(steps);
-
-//   return Rcpp::List::create(Rcpp::Named("mu") = mix.mu,
-//                             Rcpp::Named("w") = mix.w,
-//                             Rcpp::Named("sigma2") = mix.sigma2,
-//                             Rcpp::Named("zeta") = mix.zeta
-//                             );
-// }

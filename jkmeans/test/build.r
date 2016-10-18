@@ -1,6 +1,6 @@
 library(devtools)
 
-setwd("~/git/")
+setwd("~/git/jkmeans")
 build('jkmeans')
 install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 
