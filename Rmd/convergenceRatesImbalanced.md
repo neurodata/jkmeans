@@ -120,7 +120,7 @@ experiment<- function(n){
 
 nSeries<- c(seq(20,500,by = 20))
 
-# if(FALSE)
+if(FALSE)
 {
   
   MCEmean<- numeric()
@@ -157,32 +157,6 @@ nSeries<- c(seq(20,500,by = 20))
 }
 ```
 
-    ## [1] 20
-    ## [1] 40
-    ## [1] 60
-    ## [1] 80
-    ## [1] 100
-    ## [1] 120
-    ## [1] 140
-    ## [1] 160
-    ## [1] 180
-    ## [1] 200
-    ## [1] 220
-    ## [1] 240
-    ## [1] 260
-    ## [1] 280
-    ## [1] 300
-    ## [1] 320
-    ## [1] 340
-    ## [1] 360
-    ## [1] 380
-    ## [1] 400
-    ## [1] 420
-    ## [1] 440
-    ## [1] 460
-    ## [1] 480
-    ## [1] 500
-
 Misclassification error
 =======================
 
@@ -204,16 +178,16 @@ pE<- p+  geom_line(aes(x= n, y=MC14ErrorL, colour=Model),linetype=2)
 pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2) 
 
 # p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
-p+ theme_bw()
+p+ theme_bw() + geom_hline(yintercept = bayesErorr)
 ```
 
-![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 pE + theme_bw()
 ```
 
-![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-7-2.png)
+![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-8-2.png)
 
 RMSE for the mean estimate
 ==========================
@@ -235,13 +209,13 @@ pE<- p+  geom_line(aes(x= n, y=RMSEL, colour=Model),linetype=2)
 pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2) 
 
 
-p+ theme_bw()
+p+ theme_bw() 
 ```
 
-![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ``` r
 pE + theme_bw()
 ```
 
-![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-8-2.png)
+![](convergenceRatesImbalanced_files/figure-markdown_github/unnamed-chunk-9-2.png)

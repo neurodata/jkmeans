@@ -162,15 +162,15 @@ Misclassification error
 
 plot without & with pointwise 95% confidence band
 
-![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-7-1.png)
-
 ![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 RMSE for the mean estimate
 ==========================
 
 plot without & with pointwise 95% confidence band
 
-![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-9-1.png)
-
 ![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+![](convergenceRatesBalancedBigK_files/figure-markdown_github/unnamed-chunk-11-1.png)
