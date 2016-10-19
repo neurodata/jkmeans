@@ -90,8 +90,6 @@ experiment<- function(n){
   mu[1:(n/2),]<- rep(c(0.3),each=(n/2))
   mu[(n/2+1):(2*n),]<- rep(c(0.7),each=(n/2*3))
 
-  sigma<-  sqrt(1.7661/30)
-  
   for(b in 1:batchN){
     yBatch[,,b]<- matrix( rnorm(n*p*2,mu,sigma), n*K, p)
   }
@@ -99,12 +97,12 @@ experiment<- function(n){
   mu_ini<- matrix(mu0,K,p)
   
   
-  jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
-  jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T)
-  jGMM12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
-  jGMM22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F)
+  jk12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T,sigma2_ini = sigma^2)
+  jk22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = T,sigma2_ini = sigma^2)
+  jGMM12 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F,sigma2_ini = sigma^2)
+  jGMM22 <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 2,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F,sigma2_ini = sigma^2)
   
-  jGMMFlex <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F,flexJ = T,zetaTrunc = 0.05)
+  jGMMFlex <- jkmeans::jkmeansEMBatch(yBatch, k=2, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = mu_ini, fixW = F,flexJ = T,zetaTrunc = 0.05,sigma2_ini = sigma^2)
 
 
   
@@ -122,7 +120,7 @@ experiment<- function(n){
 
 nSeries<- c(seq(20,500,by = 20))
 
-if(FALSE)
+# if(FALSE)
 {
   
   MCEmean<- numeric()
@@ -158,6 +156,32 @@ if(FALSE)
   save(result, file="resultRatesImbalanced.Rda")
 }
 ```
+
+    ## [1] 20
+    ## [1] 40
+    ## [1] 60
+    ## [1] 80
+    ## [1] 100
+    ## [1] 120
+    ## [1] 140
+    ## [1] 160
+    ## [1] 180
+    ## [1] 200
+    ## [1] 220
+    ## [1] 240
+    ## [1] 260
+    ## [1] 280
+    ## [1] 300
+    ## [1] 320
+    ## [1] 340
+    ## [1] 360
+    ## [1] 380
+    ## [1] 400
+    ## [1] 420
+    ## [1] 440
+    ## [1] 460
+    ## [1] 480
+    ## [1] 500
 
 Misclassification error
 =======================
