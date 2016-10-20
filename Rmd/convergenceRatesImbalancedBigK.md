@@ -1,35 +1,15 @@
----
-title: "jk test with big K, balanced label"
-author: "Author"
-date: '`r Sys.Date()`'
-output:
-  md_document: 
-    variant: markdown_github
----
+    ###Prerequisite
+    ###Install the package if you haven't
+    setwd("~/git/")
+    require('devtools')
+    build('jkmeans')
+    install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
 
+### 1. Generate Data
 
-```
-###Prerequisite
-###Install the package if you haven't
-setwd("~/git/")
-require('devtools')
-build('jkmeans')
-install.packages("jkmeans_1.0.tar.gz", repos = NULL, type = "source")
-```
-
-```{r include=FALSE}
-require('ggplot2')
-require('reshape')
-require('jkmeans')
-
-setwd("~/git/jkmeans/Rmd/")
-```
-
-
-###1. Generate Data
 Let's generate data:
 
-```{r}
+``` r
 n<- 100
 K<- 5
 p<- 1
@@ -50,25 +30,21 @@ for(b in 1:batchN){
 }
 
 mu_ini<- matrix(mu0,K,p)
-
 ```
 
-
 Here is a view of the clusters
-```{r}
 
-
+``` r
 dataHist<- data.frame("Mu"=as.factor(mu),    "y"= yBatch[,,1])
 
 ggplot(dataHist, aes(y, fill = as.factor(Mu))) + geom_histogram(alpha = 0.2,bins = 30,  position="identity")
-
-
 ```
 
+![](convergenceRatesImbalancedBigK_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
-functions to compute misclassification error and rmse of mean estimate:
-NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
-```{r}
+functions to compute misclassification error and rmse of mean estimate: NB: GMM can get stuck in saddle point at (w1=0, w2=1), so I removed the test result when it happened.
+
+``` r
 computeMError<- function(jk, batchN, trueM){
   error<- numeric(batchN)
   for(b in 1:batchN){
@@ -94,16 +70,11 @@ computeRMSE<- function(jk, batchN, trueMu){
   }
   rmse
 }
-
 ```
 
-###2. Test jk-means/ j-sparse-GMM with different n's
+### 2. Test jk-means/ j-sparse-GMM with different n's
 
-
-
-```{r}
-
-
+``` r
 experiment<- function(n){
   
   p<- 1
@@ -145,12 +116,9 @@ experiment<- function(n){
   list("MCE"=error, "RMSE"=rmse)
   
 }
-
 ```
 
-
-
-```{r}
+``` r
 #code to run on an increasing series of n
 #ran on cluster
 
@@ -191,130 +159,22 @@ if(FALSE)
   
   save(result, file="resultRatesImbalancedBigK.Rda")
 }
-
 ```
 
-```{r include=FALSE}
-# 
-# nSeries<- c(seq(20,500,by = 20))
-# 
-# 
-# 
-# BEsim<- function(n){
-#   p<- 1
-#   batchN<- 1000
-#   
-#   yBatch<- array(0,dim = c(n*K,p,batchN))
-#   
-#   mu0<- c(1:K)
-#   mu<- matrix( 0,n*K,p)
-#   mu <- rep(mu0, each = n)
-#   
-#   for(b in 1:batchN){
-#     yBatch[,,b]<- matrix( rnorm(n*p*K,mu,sigma), n*K, p)
-#   }
-#   
-#   dist<- abs(outer(c(yBatch), mu0, "-"))
-#   bayesclassified <- apply(dist, 1, function(x){c(1:K)[x==min(x)]})
-#   #bayes error
-#   (sum(bayesclassified != rep(c(1:K),each=n))/n/K/batchN)
-# }
-# 
-# 
-# bayesErorr<- BEsim(100)
+Misclassification error
+=======================
 
-```
-
-#Misclassification error
 plot without & with pointwise 95% confidence band
 
+![](convergenceRatesImbalancedBigK_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
-```{r echo=FALSE}
+![](convergenceRatesImbalancedBigK_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
-load("resultRatesImbalancedBigK.Rda")
+RMSE for the mean estimate
+==========================
 
-plot1<- data.frame( "n" = rep(nSeries, 5),
-                    "MC14Error"= c(result$MCEmean[,1:5]),
-                    "MC14ErrorL"= c(result$MCEq25[,1:5]),
-                    "MC14ErrorU"= c(result$MCEq975[,1:5]),
-                    "Model"= rep(c("w fixed, J=1","w fixed, J=2","w fixed, J=3","w fixed, J=4","w fixed, J=K"
-                    ),each= length(nSeries))
-)
-
-p<- ggplot(data=plot1, aes())
-p<- p+  geom_line(aes(x= n, y=MC14Error, colour=Model)) 
-pE<- p+  geom_line(aes(x= n, y=MC14ErrorL, colour=Model),linetype=2) 
-pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2) 
-
-# p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
-p+ theme_bw() #+ geom_hline(yintercept = bayesErorr)
-# pE + theme_bw()
-```
-
-
-
-```{r echo=FALSE}
-
-plot1<- data.frame( "n" = rep(nSeries, 5),
-                    "MC14Error"= c(result$MCEmean[,6:10]),
-                    "MC14ErrorL"= c(result$MCEq25[,6:10]),
-                    "MC14ErrorU"= c(result$MCEq975[,6:10]),
-                    "Model"= rep(c("w flex, J=1","w flex, J=2","w flex, J=3","w flex, J=4","w flex, J=K"
-                    ),each= length(nSeries))
-)
-
-p<- ggplot(data=plot1, aes())
-p<- p+  geom_line(aes(x= n, y=MC14Error, colour=Model)) 
-pE<- p+  geom_line(aes(x= n, y=MC14ErrorL, colour=Model),linetype=2) 
-pE<- pE+  geom_line(aes(x= n, y=MC14ErrorU, colour=Model),linetype=2) 
-
-# p+ geom_errorbar( aes(x=n,ymax = MC14ErrorU, ymin=MC14ErrorL, colour=Model),width=0.2)
-p+ theme_bw() #+ geom_hline(yintercept = bayesErorr)
-# pE + theme_bw()
-```
-
-#RMSE for the mean estimate
 plot without & with pointwise 95% confidence band
 
-```{r echo=FALSE}
+![](convergenceRatesImbalancedBigK_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-plot1<- data.frame( "n" = rep(nSeries, 5),
-                    "RMSE"= c(result$RMSEmean[,1:5]),
-                    "RMSEL"= c(result$RMSEq25[,1:5]),
-                    "RMSEU"= c(result$RMSEq975[,1:5]),
-                    "Model"= rep(c("w fixed, J=1","w fixed, J=2","w fixed, J=3","w fixed, J=4","w fixed, J=K"
-                                  
-                    ),each= length(nSeries))            )
-
-p<- ggplot(data=plot1, aes())
-p<- p+  geom_line(aes(x= n, y=RMSE, colour=Model)) 
-
-pE<- p+  geom_line(aes(x= n, y=RMSEL, colour=Model),linetype=2) 
-pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2) 
-
-
-p+ theme_bw()
-# pE + theme_bw()
-```
-
-
-```{r echo=FALSE}
-
-plot1<- data.frame( "n" = rep(nSeries, 5),
-                    "RMSE"= c(result$RMSEmean[,6:10]),
-                    "RMSEL"= c(result$RMSEq25[,6:10]),
-                    "RMSEU"= c(result$RMSEq975[,6:10]),
-                    "Model"= rep(c(
-                                   "w flex, J=1","w flex, J=2","w flex, J=3","w flex, J=4","w flex, J=K"
-                    ),each= length(nSeries))            )
-
-p<- ggplot(data=plot1, aes())
-p<- p+  geom_line(aes(x= n, y=RMSE, colour=Model)) 
-
-pE<- p+  geom_line(aes(x= n, y=RMSEL, colour=Model),linetype=2) 
-pE<- pE+  geom_line(aes(x= n, y=RMSEU, colour=Model),linetype=2) 
-
-
-p+ theme_bw()
-# pE + theme_bw()
-```
+![](convergenceRatesImbalancedBigK_files/figure-markdown_github/unnamed-chunk-11-1.png)
