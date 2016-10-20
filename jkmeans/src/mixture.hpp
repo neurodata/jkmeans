@@ -45,7 +45,7 @@ class Mixture {
 
     if (useKmeansIni) {
       mat means;
-      bool status = kmeans(means, trans(y), K, random_subset, 10, false);
+      bool status = kmeans(means, trans(y), K, static_spread, 10, false);
       mu = means.t();
     } else {
       mu = meansInput;
@@ -284,7 +284,14 @@ class Mixture {
     }
   }
 
-  uvec clusteringMAP() { return arma::index_max(zeta, 1); }
+  uvec clusteringMAP() {
+    uvec indices = sort_index(mu.col(0));
+    mat reordered_zeta = zeta.cols(indices);
+
+    // cout << indices << endl;
+
+    return arma::index_max(reordered_zeta, 1);
+  }
 
   // void runQNEM(int steps) {
   // Expectation();
