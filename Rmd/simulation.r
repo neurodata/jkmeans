@@ -3,7 +3,7 @@ simulation<- function(K=2, balanced = T, sigma = 1, initial_truth = T){
   experiment<- function(n){
     
     p<- 1
-    batchN<- 100
+    batchN<- 1000
     
     yBatch<- array(0,dim = c(n*K,p,batchN))
     
@@ -30,13 +30,14 @@ simulation<- function(K=2, balanced = T, sigma = 1, initial_truth = T){
       yBatch[,,b]<- matrix( rnorm(n*p*K,mu,sigma), n*K, p)
     }
     
+    useKmeansIni =  !initial_truth
     
     kMeansList <- lapply(c(1:K), function(J){
-      jkmeans::jkmeansEMBatch(yBatch, k=K, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = as.matrix(mu0), fixW = T,sigma2_ini = sigma^2)
+      jkmeans::jkmeansEMBatch(yBatch, k=K, j = J,  1000,tol = 1E-10,useKmeansIni = useKmeansIni, meansIni = as.matrix(mu0), fixW = T,sigma2_ini = sigma^2)
     })
     
     GMMList <- lapply(c(1:K), function(J){
-      jkmeans::jkmeansEMBatch(yBatch, k=K, j = 1,  1000,tol = 1E-10,useKmeansIni = F, meansIni = as.matrix(mu0), fixW = F,sigma2_ini = sigma^2)
+      jkmeans::jkmeansEMBatch(yBatch, k=K, j = J,  1000,tol = 1E-10,useKmeansIni = useKmeansIni, meansIni = as.matrix(mu0), fixW = F,sigma2_ini = sigma^2)
     })
     
     #functions to compute the error

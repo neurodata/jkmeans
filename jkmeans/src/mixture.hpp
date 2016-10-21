@@ -41,14 +41,22 @@ class Mixture {
 
   void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
                   double _zetaTrunc, double sigma2_ini) {
-    sigma2 = sigma2_ini;
-
     if (useKmeansIni) {
       mat means;
       bool status = kmeans(means, trans(y), K, static_spread, 10, false);
       mu = means.t();
+
+      // initialize sigma2 via K-means
+      int _J = J;  // back up the user defined J
+      J = 1;
+      Expectation();
+      updateSigma2();
+
+      J = _J;
+
     } else {
       mu = meansInput;
+      sigma2 = sigma2_ini;
     }
 
     fixW = _fixW;
