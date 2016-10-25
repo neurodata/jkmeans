@@ -22,6 +22,10 @@ shinyUI(pageWithSidebar(
                 list("Truth" = "1", 
                      "K-means" = "0")),
     
+    selectInput("fix_sigma2", "Fix Sigma to truth:",
+                list("Yes" = "1", 
+                     "No" = "0")),
+    
     checkboxInput("fixW","Show fixed-weight models (k-means family)",  TRUE),
     checkboxInput("GMM","Show flexible-weight models (GMM family)",  TRUE)
     ),

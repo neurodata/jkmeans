@@ -12,8 +12,9 @@ shinyServer(function(input, output) {
     balanced<- input$weight
     sigma<- input$sigma
     initial_truth<- input$initial_truth
+    fix_sigma2<- input$fix_sigma2
     
-    filename = paste("sims/result_",paste(K,balanced ,sigma , initial_truth,sep =  "_"),".Rda",sep="")
+    filename = paste("sims/result_",paste(K,balanced ,sigma , initial_truth,fix_sigma2,sep =  "_"),".Rda",sep="")
     
     K<- as.numeric(K)
     
