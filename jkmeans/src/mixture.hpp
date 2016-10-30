@@ -13,10 +13,8 @@ class Mixture {
   vec w;
   mat zeta;
 
-  vec gradient;
-  mat hessian;
-
   bool fixW;
+  bool fixSigma2;
   bool flexJ;
   double zetaTrunc;
 
@@ -34,13 +32,12 @@ class Mixture {
     mu.randn();
 
     zeta = ones<mat>(n, K);
-
-    gradient = zeros(p * K);
-    hessian = zeros<mat>(p * K, p * K);
   }
 
   void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
-                  double _zetaTrunc, double sigma2_ini) {
+                  double _zetaTrunc, double sigma2_ini, bool _fixSigma2) {
+    sigma2 = sigma2_ini;
+
     if (useKmeansIni) {
       mat means;
       bool status = kmeans(means, trans(y), K, static_spread, 10, false);
@@ -50,15 +47,18 @@ class Mixture {
       int _J = J;  // back up the user defined J
       J = 1;
       Expectation();
-      updateSigma2();
+
+      if (!fixSigma2) {
+        updateSigma2();
+      }
 
       J = _J;
 
     } else {
       mu = meansInput;
-      sigma2 = sigma2_ini;
     }
 
+    fixSigma2 = _fixSigma2;
     fixW = _fixW;
     flexJ = _flexJ;
     zetaTrunc = _zetaTrunc;
@@ -142,55 +142,13 @@ class Mixture {
       diff2 += accu(sum(diff % diff, 1) % weights);
       sum_total_weights += total_weights * p;
 
-      // sigma2 = (accu(sum(diff % diff, 1) % weights)) /
-      // (total_weights * p + 0.1);
-
       // compute w
       if (!fixW) w(k) = accu(weights) / (double)n;
     }
 
-    sigma2 = (diff2 / sum_total_weights);
-  }
-
-  vec computeGradient(mat mu) {
-    vec gradient(p * K);
-
-    for (int k = 0; k < K; ++k) {
-      mat diff = y - repmat(mu.row(k), n, 1);
-
-      vec zeta_local = zeta.col(k);
-      vec gradient_local = diff.t() * zeta_local / sigma2;
-
-      double hessian_diag_local =
-          -accu(zeta_local) / sigma2;  // same for all p elements
-
-      int idx = k * p;
-      int end_idx = idx + p - 1;
-      gradient(span(idx, end_idx)) = gradient_local;
+    if (!fixSigma2) {
+      sigma2 = (diff2 / sum_total_weights);
     }
-
-    return gradient;
-  }
-
-  mat computeHessian() {
-    mat hessian = zeros<mat>(p * K, p * K);
-
-    for (int k = 0; k < K; ++k) {
-      mat diff = y - repmat(mu.row(k), n, 1);
-
-      vec zeta_local = zeta.col(k);
-
-      double hessian_diag_local =
-          -accu(zeta_local) / sigma2;  // same for all p elements
-
-      int idx = k * p;
-      int end_idx = idx + p - 1;
-
-      for (int i = 0; i < p; ++i) {
-        hessian(idx + i, idx + i) = hessian_diag_local;
-      }
-    }
-    return hessian;
   }
 
   void updateSigma2() {
@@ -210,70 +168,6 @@ class Mixture {
     sigma2 = (diff2 / sum_total_weights);
   }
 
-  void GradientDescent(int steps) {
-    mat B = zeros<mat>(p * K, p * K);
-
-    for (int i = 0; i < steps; ++i) {
-      /* code */
-
-      Expectation();
-
-      double curLoglik = compTotalLoglik();
-
-      mat hessian = computeHessian();
-
-      mat old_mu = mu;
-
-      vec Q_n_minus_1_bar_n_minus_1 = computeGradient(old_mu);
-
-      // run one descent
-      mat H = hessian - B;
-      double factor = 0.5;
-      while (rcond(H) < 1E-8) {
-        H = hessian - factor * B;
-        factor *= 0.5;
-      }
-
-      mu = old_mu - trans(reshape(solve(H, Q_n_minus_1_bar_n_minus_1), p, K));
-
-      Expectation();
-
-      vec Q_n_minus_1_bar_n = computeGradient(old_mu);
-
-      vec g_n = Q_n_minus_1_bar_n - Q_n_minus_1_bar_n_minus_1;
-      vec s_n = reshape(mu - old_mu, p * K, 1);
-
-      vec v_n = g_n - B * s_n;
-      double c_n = 1 / dot(v_n, s_n);
-      B = B + c_n * v_n * v_n.t();
-
-      updateSigma2();
-
-      double newLoglik = compTotalLoglik();
-
-      factor = 0.5;
-      mat direction = mu - old_mu;
-      while (newLoglik + 1E-8 < curLoglik) {
-        mu = old_mu + factor * direction;
-        factor *= 0.5;
-        updateSigma2();
-        newLoglik = compTotalLoglik();
-        if (factor < 0.1) {
-          mu = old_mu + 0.1 * direction;
-          updateSigma2();
-          break;
-        }
-      }
-
-      if (std::isnan(newLoglik) || std::isinf(newLoglik) || mu.has_nan()) {
-        mu = old_mu;
-        updateSigma2();
-      }
-
-      // cout << newLoglik << endl;
-    }
-  }
-
   void runEM(int steps, double tol) {
     mat mu0 = mu;
 
@@ -288,21 +182,16 @@ class Mixture {
       else
         mu0 = mu;
 
-      // cout << compTotalLoglik() << endl;
+      cout << compTotalLoglik() << endl;
     }
   }
 
-  uvec clusteringMAP() {
+  void sortBy1stDinMu() {
     uvec indices = sort_index(mu.col(0));
-    mat reordered_zeta = zeta.cols(indices);
-
-    // cout << indices << endl;
-
-    return arma::index_max(reordered_zeta, 1);
+    zeta = zeta.cols(indices);
+    mu = mu.rows(indices);
+    w = w(indices);
   }
 
-  // void runQNEM(int steps) {
-  // Expectation();
-  // GradientDescent(steps);
-  // }
+  uvec clusteringMAP() { return arma::index_max(zeta, 1); }
 };
