@@ -136,7 +136,7 @@ df$J<- as.factor(df$J)
 
 pdf("BVMeanDist.pdf",6,3)
 p<- ggplot(data=df, aes())
-p+  geom_histogram(aes(x=value,fill=mu),bins=100, alpha = 0.8)+facet_wrap(~J)
+p+  geom_histogram(aes(x=value,fill=mu),bins=100, alpha = 0.8,position = 'identity')+facet_wrap(~J)
 dev.off()
 
 

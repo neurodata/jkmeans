@@ -14,7 +14,7 @@ class Mixture {
   mat zeta;
 
   bool fixW;
-  bool fixSigma2;
+  bool normalizeZeta;
   bool flexJ;
   double zetaTrunc;
 
@@ -35,7 +35,7 @@ class Mixture {
   }
 
   void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
-                  double _zetaTrunc, double sigma2_ini, bool _fixSigma2) {
+                  double _zetaTrunc, double sigma2_ini, bool _normalizeZeta) {
     sigma2 = sigma2_ini;
 
     if (useKmeansIni) {
@@ -48,9 +48,7 @@ class Mixture {
       J = 1;
       Expectation();
 
-      if (!fixSigma2) {
-        updateSigma2();
-      }
+      updateSigma2();
 
       J = _J;
 
@@ -58,7 +56,7 @@ class Mixture {
       mu = meansInput;
     }
 
-    fixSigma2 = _fixSigma2;
+    normalizeZeta = _normalizeZeta;
     fixW = _fixW;
     flexJ = _flexJ;
     zetaTrunc = _zetaTrunc;
@@ -110,6 +108,8 @@ class Mixture {
 
         local_zeta = exp(local_zeta);
 
+        local_zeta = local_zeta / accu(local_zeta);
+
         local_zeta(find(local_zeta < local_zeta(trunc_idx))).fill(0);
       }
       if (flexJ) {
@@ -117,8 +117,10 @@ class Mixture {
         local_zeta /= accu(local_zeta);
         local_zeta(find(local_zeta < zetaTrunc)).fill(0);
       }
-
-      zeta.row(i) = local_zeta / accu(local_zeta);
+      if (normalizeZeta)
+        zeta.row(i) = local_zeta / accu(local_zeta);
+      else
+        zeta.row(i) = local_zeta;
     }
   }
 
@@ -146,9 +148,7 @@ class Mixture {
       if (!fixW) w(k) = accu(weights) / (double)n;
     }
 
-    if (!fixSigma2) {
-      sigma2 = (diff2 / sum_total_weights);
-    }
+    sigma2 = (diff2 / sum_total_weights);
   }
 
   void updateSigma2() {
@@ -171,6 +171,8 @@ class Mixture {
   void runEM(int steps, double tol) {
     mat mu0 = mu;
 
+    double cur_loglik = -INFINITY;
+
     for (int i = 0; i < steps; ++i) {
       Expectation();
       Maximization();
@@ -182,7 +184,7 @@ class Mixture {
       else
         mu0 = mu;
 
-      cout << compTotalLoglik() << endl;
+      // cout << compTotalLoglik() << endl;
     }
   }
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  30 OCT 2016 09:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  7 NOV 2016 10:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -503,33 +503,44 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 )
 \c@theorem=\count114
 \c@corollary=\count115
- (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.aux)
+ (/usr/local/texlive/2016/texmf-dist/tex/latex/mhequ/mhequ.sty
+Package: mhequ 
+\@MHnocols=\count116
+\@MHnocolstot=\count117
+\@MHLength=\count118
+\MHcenter=\skip56
+\MHbig=\skip57
+\@MHlineskip=\skip58
+\MHC@ls=\count119
+\MHt@tc@ls=\count120
+\MHrem@inc@ls=\count121
+) (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.aux)
 \openout1 = `ver1.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 49.
-LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
  (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count116
+\scratchcounter=\count122
 \scratchdimen=\dimen121
 \scratchbox=\box31
-\nofMPsegments=\count117
-\nofMParguments=\count118
+\nofMPsegments=\count123
+\nofMParguments=\count124
 \everyMPshowfont=\toks32
-\MPscratchCnt=\count119
+\MPscratchCnt=\count125
 \MPscratchDim=\dimen122
-\MPnumerator=\count120
-\makeMPintoPDFobject=\count121
+\MPnumerator=\count126
+\makeMPintoPDFobject=\count127
 \everyMPtoPDFconversion=\toks33
 ) (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO)
@@ -569,11 +580,11 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Try loading font information for U+msa on input line 51.
+LaTeX Font Info:    Try loading font information for U+msa on input line 58.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 51.
+LaTeX Font Info:    Try loading font information for U+msb on input line 58.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
@@ -582,42 +593,29 @@ LaTeX Warning: No \author given.
 
 [1
 
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] <BV2.pdf, id=16, 433.62pt x 216.81pt>
-File: BV2.pdf Graphic file (type pdf)
- <use BV2.pdf>
-Package pdftex.def Info: BV2.pdf used on input line 124.
-(pdftex.def)             Requested size: 413.17957pt x 206.60019pt.
- <BVMeanDist.pdf, id=17, 433.62pt x 216.81pt>
-File: BVMeanDist.pdf Graphic file (type pdf)
- <use BVMeanDist.pdf>
-Package pdftex.def Info: BVMeanDist.pdf used on input line 128.
-(pdftex.def)             Requested size: 413.17957pt x 206.60019pt.
- <BVMeanDist3.pdf, id=18, 433.62pt x 216.81pt>
-File: BVMeanDist3.pdf Graphic file (type pdf)
- <use BVMeanDist3.pdf>
-Package pdftex.def Info: BVMeanDist3.pdf used on input line 132.
-(pdftex.def)             Requested size: 413.17957pt x 206.60019pt.
- [2]
-Overfull \vbox (28.31134pt too high) has occurred while \output is active []
-
- [3 <./BV2.pdf> <./BVMeanDist.pdf> <./BVMeanDist3.pdf>] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.bbl
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 8.
 
-) [4] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.aux) ) 
+)
+
+Package caption Warning: Unused \captionsetup[sub] on input line 30.
+See the caption package documentation for explanation.
+
+[3] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.aux) ) 
 Here is how much of TeX's memory you used:
- 4953 strings out of 493014
- 70417 string characters out of 6133351
- 138078 words of memory out of 5000000
- 8406 multiletter control sequences out of 15000+600000
- 13951 words of font info for 54 fonts, out of 8000000 for 9000
+ 5061 strings out of 493014
+ 71403 string characters out of 6133351
+ 141608 words of memory out of 5000000
+ 8513 multiletter control sequences out of 15000+600000
+ 12403 words of font info for 48 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,9n,40p,642b,493s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on /Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.pdf (4 pages, 161736 bytes).
+ 42i,9n,40p,352b,375s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on /Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/ver1.pdf (3 pages, 150869 bytes).
 PDF statistics:
- 93 PDF objects out of 1000 (max. 8388607)
- 67 compressed objects within 1 object stream
+ 74 PDF objects out of 1000 (max. 8388607)
+ 53 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

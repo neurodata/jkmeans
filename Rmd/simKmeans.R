@@ -1,0 +1,73 @@
+
+b<- 3
+
+plot(rbind(c(0,0),c(1,b)),type="l",xlim = c(0,5),ylim=c(0,5))
+
+lines(rbind(c(0, b/2+1/2/b),c(b^2/2+1/2,0)),type="l")
+
+
+b<- 1
+rho<- 5
+
+
+kemans_test <-  function(b,rho){
+  
+  mu1<- c(0,0)
+  mu2<- c(1,b)
+  var<- c(1/40,1/40*rho)* 2
+  y1<- t( sqrt(var) *matrix(rnorm(1000*2),nrow=2))
+  y2<-  t( sqrt(var) *matrix(rnorm(1000*2),nrow=2)+ mu2)
+  
+  # plot(y1,xlim = c(-b*2,b*2),ylim=c(-b*2,b*2))
+  # lines(y2, type="p",col="red")
+  
+  y<- rbind(y1,y2)
+  
+  plot(y,col=rep(c(1,2),each=1000), xlim= range(y[,2]), ylim=range(y[,2]))
+  
+  abline(a= b/2+1/2/b, b= -1/b)
+  
+  
+  
+  
+  kmpp <- function(X, k) {
+    n <- nrow(X)
+    C <- numeric(k)
+    C[1] <- sample(1:n, 1)
+    
+    for (i in 2:k) {
+      dm <- abs(outer(X, X[C, ], "-"))
+      pr <- apply(dm, 1, min)
+      pr[C] <- 0
+      C[i] <- sample(1:n, 1, prob = pr)
+    }
+    
+    X[C, ]
+  }
+  
+  ini<- kmpp(y,2)
+  ini<- ini[order(ini[,1]),]
+  
+  # km<- kmeans(y, centers= ini)
+  km<- kmeans(y, centers= rbind(mu1,mu2),iter.max=10)
+  
+  lines(km$centers,type = "p",pch=2,lwd=5,col="blue")
+  
+  
+  rate <-sum(km$cluster != rep(c(1,2),each=1000))/2000
+  print(min(rate,1-rate))
+  
+}
+
+kemans_test(1,5)
+kemans_test(1,10)
+kemans_test(1,20)
+kemans_test(1,30)
+kemans_test(1,40)
+kemans_test(1,100)
+kemans_test(1,1000)
+
+
+kemans_test(2,5)
+kemans_test(2,10)
+kemans_test(5,1000)

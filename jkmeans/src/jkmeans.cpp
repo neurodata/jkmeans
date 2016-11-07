@@ -16,7 +16,7 @@ Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
                      double tol = 1E-8, bool fixW = true, bool flexJ = false,
                      double zetaTrunc = 0.01, bool useKmeansIni = true,
                      const arma::mat& meansIni = 0, double sigma2_ini = 0.1,
-                     bool fixSigma2 = false) {
+                     bool normalizeZeta = false) {
   Mixture mix(y, k, j);
 
   if (j > k) {
@@ -24,7 +24,7 @@ Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps = 1000,
   }
 
   mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc, sigma2_ini,
-                 fixSigma2);
+                 normalizeZeta);
 
   mix.runEM(steps, tol);
 
@@ -42,7 +42,7 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
                           bool flexJ = false, double zetaTrunc = 0.01,
                           bool useKmeansIni = true,
                           const arma::mat& meansIni = 0,
-                          double sigma2_ini = 0.1, bool fixSigma2 = false) {
+                          double sigma2_ini = 0.1, bool normalizeZeta = false) {
   if (j > k) {
     throw std::range_error("j needs be no bigger than k");
   }
@@ -62,7 +62,7 @@ Rcpp::List jkmeansEMBatch(const arma::cube& y, int k, int j, int steps = 1000,
     mat localY = y.slice(i);
     Mixture mix(localY, k, j);
     mix.initialize(meansIni, useKmeansIni, fixW, flexJ, zetaTrunc, sigma2_ini,
-                   fixSigma2);
+                   normalizeZeta);
     mix.runEM(steps, tol);
 
     mix.sortBy1stDinMu();

@@ -3,10 +3,13 @@ require("ggplot2")
 setwd("~/git/jkmeans/Rmd/")
 
 #good
-load("sims/raw_result_2_0_0.5_1_0.Rda")
+# load("sims/raw_result_2_0_0.5_1_0.Rda")
+
+load("sims/raw_result_5_0_1_1_0.Rda")
+
 
 nseries<- length(raw_test_results)
-K<- 2
+K<- 5
 
 #likelihood
 
@@ -17,7 +20,7 @@ loglik_GMM<- function(y, mu,sigma2,w){
 
 
 #get Bias Variance for J=j in GMM
-getBVMean <- function(j){
+getBVMean <- function(j,cutoff=0.05){
   #histogram of the mean
   
   muHat<- raw_n$GMMList[[j]]$mu
@@ -25,7 +28,6 @@ getBVMean <- function(j){
   
   sigma2Hat<- raw_n$GMMList[[j]]$sigma2
   
-  cutoff<- 0.05
   exclude<- (wHat[1,]>(1-cutoff) | wHat[1,]<cutoff)
   
   muHat<- muHat[,,!exclude]
@@ -80,10 +82,11 @@ getBVMean <- function(j){
 }
 
 
-n<-1
+n<-5
 raw_n<- raw_test_results[[n]]
 
-hist(raw_n$M)
+table(raw_n$M)
+
 
 batchN<- dim(raw_n$yBatch)[3]
 yBatch <- raw_n$yBatch
@@ -93,9 +96,15 @@ sliceMeans <- function(x){
 }
 
 
-getBVMean(1)
+raw_n$GMMList[[4]]$zeta
+
+
+getBVMean(1, 0.1)
 getBVMean(2)
 
+sum(getBVMean(1, 0.2)$MSE)
+sum(getBVMean(2, 0.2)$MSE)
+sum(getBVMean(3, 0.2)$MSE)
 
 
 

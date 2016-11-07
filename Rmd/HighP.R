@@ -1,0 +1,122 @@
+# .rs.restartR()
+require("jkmeans")
+
+n<- 100
+K<- 2
+p<- 100
+
+sigma<- 1
+mu1<- rep(K,n*K)
+
+randomMu<- unlist(sapply(1:K, function(x){rep(x, runif(1,n/10,n))}))
+mu1[1:length(randomMu)]<- randomMu
+
+mu<- matrix(0,n*K,p)
+mu[,1:5]<- mu1
+# mu[,2]<- mu1
+
+
+y<- matrix( rnorm(n*K*p, mu,sd = (sigma)), n*K)
+# hist(y,breaks = 100)
+
+svdY<- svd(y)
+
+plot(svdY$d)
+
+y1<- as.matrix( t(t(svdY$u)*svdY$d) [,c(1)])
+
+# hist(c(sapply(c(1:K),function(x){ rnorm(1000,x, (sigma2/sqrt(n)))})), breaks = 1000)
+
+
+kmpp <- function(X, k) {
+  n <- nrow(X)
+  C <- numeric(k)
+  C[1] <- sample(1:n, 1)
+  
+  for (i in 2:k) {
+    dm <- abs(outer(X, X[C, ], "-"))
+    pr <- apply(dm, 1, min)
+    pr[C] <- 0
+    C[i] <- sample(1:n, 1, prob = pr)
+  }
+  
+   X[C, ]
+}
+
+
+rmse<- function(x){
+  sqrt(mean((x$mu[,1:5]-c(1:2))^2))
+}
+
+
+
+plot(y,col=mu1)
+
+k<- K
+
+ini<- as.matrix(kmpp(y,k))
+
+
+
+kmeans <- jkmeansEM(y,k = k,j= 1,1000,tol = 1E-15,fixW = T, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(kmeans$M)
+# lines(kmeans$mu, type="p",pch=2,lwd=3,col="green")
+
+
+jk<- jkmeansEM(y,k = k,j= 1,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(jk$M)
+# lines(jk$mu, type="p",pch=2,lwd=3,col="blue")
+jk$mu[,1]
+
+
+full<- jkmeansEM(y,k = k,j= k,1000,tol = 1E-10,fixW = F, meansIni = ini,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(full$M)
+# lines(full$mu, type="p",pch=3,lwd=3,col="red")
+full$mu[,1]
+
+
+
+
+y<- y1
+ini<- as.matrix(kmpp(y,k))
+
+kmeans_pca <- jkmeansEM(y,k = k,j= 1,1000,tol = 1E-15,fixW = T, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(kmeans$M)
+# lines(kmeans$mu, type="p",pch=2,lwd=3,col="green")
+# kmeans$mu[,1]
+
+
+jk_pca<- jkmeansEM(y,k = k,j= 1,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(jk$M)
+# lines(jk$mu, type="p",pch=2,lwd=3,col="blue")
+# jk$mu[,1]
+
+
+full_pca<- jkmeansEM(y,k = k,j= k,1000,tol = 1E-10,fixW = F, meansIni = ini,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# table(full$M)
+# lines(full$mu, type="p",pch=3,lwd=3,col="red")
+# full$mu[,1]
+
+
+((kmeans$mu[1,1]*svdY$v)[,1]-(kmeans$mu[2,1]*svdY$v)[,1])[1:5]
+((jk$mu[1,1]*svdY$v)[,1]-(jk$mu[2,1]*svdY$v)[,1])[1:5]
+((full$mu[1,1]*svdY$v)[,1] - (full$mu[2,1]*svdY$v)[,1])[1:5]
+
+
+rmse_pca<- function(x){
+  v<-rbind( (x$mu[1,1]*svdY$v)[1:5,1],  (x$mu[2,1]*svdY$v)[1:5,1])
+  
+  sqrt(mean((v-c(1:2))^2))
+}
+
+kmeans_pca$mu 
+dim(svdY$v)
+
+
+
+rmse(kmeans)
+rmse(jk)
+rmse(full)
+rmse_pca(kmeans_pca)
+rmse_pca(jk_pca)
+rmse_pca(full_pca)
