@@ -1,5 +1,4 @@
-jkmeans_1.0.tar.gz
-
+*.tar.gz
 # Junk in Mac OS
 **/.DS_Store
 Rmd/sims/*

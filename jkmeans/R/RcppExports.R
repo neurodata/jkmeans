@@ -5,7 +5,3 @@ jkmeansEM <- function(y, k, j, steps = 1000L, tol = 1E-8, fixW = TRUE, flexJ = F
     .Call('jkmeans_jkmeansEM', PACKAGE = 'jkmeans', y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni, sigma2_ini, normalizeZeta)
 }
 
-jkmeansEMBatch <- function(y, k, j, steps = 1000L, tol = 1E-8, fixW = TRUE, flexJ = FALSE, zetaTrunc = 0.01, useKmeansIni = TRUE, meansIni = 0L, sigma2_ini = 0.1, normalizeZeta = FALSE) {
-    .Call('jkmeans_jkmeansEMBatch', PACKAGE = 'jkmeans', y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni, sigma2_ini, normalizeZeta)
-}
-

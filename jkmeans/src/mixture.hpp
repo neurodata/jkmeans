@@ -9,7 +9,7 @@ class Mixture {
   int J;  // truncation
 
   mat mu;
-  double sigma2;
+  vec Sigma;
   vec w;
   mat zeta;
 
@@ -27,7 +27,7 @@ class Mixture {
 
     // initialize weights
     w = ones(K) / (double)K;
-    sigma2 = 1;
+    Sigma = ones(p);
     mu = ones<mat>(K, p);
     mu.randn();
 
@@ -36,7 +36,7 @@ class Mixture {
 
   void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
                   double _zetaTrunc, double sigma2_ini, bool _normalizeZeta) {
-    sigma2 = sigma2_ini;
+    Sigma.fill(sigma2_ini);
 
     if (useKmeansIni) {
       mat means;
@@ -48,7 +48,7 @@ class Mixture {
       J = 1;
       Expectation();
 
-      updateSigma2();
+      updateSigma();
 
       J = _J;
 
@@ -62,22 +62,24 @@ class Mixture {
     zetaTrunc = _zetaTrunc;
   }
 
-  double loglik(rowvec x, rowvec mu, double sigma2) {
+  double loglik(rowvec x, rowvec mu, vec Sigma) {
     rowvec diff = x - mu;
 
-    return -dot(diff, diff) / 2 / sigma2 - p / 2 * log(sigma2);
+    return -accu(diff % diff / Sigma.t()) / 2.0 - 1.0 / 2.0 * accu(log(Sigma));
   }
 
   double compTotalLoglik() {
-    vec marginal_loglik = zeros<vec>(n);
+    double marginal_loglik = 0;
 
     for (int k = 0; k < K; ++k) {
       mat diff = (y - repmat(mu.row(k), n, 1));
 
-      vec diff2 =
-          exp(-sum(diff % diff, 1) / sigma2 / 2.0 - p / 2.0 * log(sigma2));
+      mat diff2 = diff % diff;
 
-      marginal_loglik += w(k) * diff2;
+      double l = exp(-accu(diff2.each_row() / Sigma.t()) / 2.0 -
+                     1 / 2.0 * accu(log(Sigma)));
+
+      marginal_loglik += w(k) * l;
     }
 
     return accu(log(marginal_loglik));
@@ -88,13 +90,13 @@ class Mixture {
       for (int k = 0; k < K; ++k) {
         rowvec y_local = y.row(i);
         rowvec mu_local = mu.row(k);
-        zeta(i, k) = log(w(k)) + loglik(y_local, mu_local, sigma2);
+        zeta(i, k) = log(w(k)) + loglik(y_local, mu_local, Sigma);
         if (std::isnan(zeta(i, k))) {
           cout << w(k) << endl;
-          cout << loglik(y_local, mu_local, sigma2) << endl;
+          cout << loglik(y_local, mu_local, Sigma) << endl;
           cout << y_local << endl;
           cout << mu_local << endl;
-          cout << sigma2 << endl;
+          // cout << Sigma << endl;
         }
       }
       rowvec local_zeta = zeta.row(i);
@@ -138,34 +140,35 @@ class Mixture {
       else
         mu.row(k) = trans(randn(p));
 
-      // compute sigma2
-      mat diff = (y - repmat(mu.row(k), n, 1));
+      // // compute sigma2
+      // mat diff = (y - repmat(mu.row(k), n, 1));
 
-      diff2 += accu(sum(diff % diff, 1) % weights);
-      sum_total_weights += total_weights * p;
+      // diff2 += accu(sum(diff % diff, 1) % weights);
+      // sum_total_weights += total_weights * p;
 
       // compute w
       if (!fixW) w(k) = accu(weights) / (double)n;
     }
 
-    sigma2 = (diff2 / sum_total_weights);
+    updateSigma();
   }
 
-  void updateSigma2() {
-    double diff2 = 0;
+  void updateSigma() {
+    vec diff2 = zeros(p);
     double sum_total_weights = 0;
     for (int k = 0; k < K; ++k) {
-      mat diff = y - repmat(mu.row(k), n, 1);
+      mat diff = y.each_row() - mu.row(k);
 
       vec zeta_local = zeta.col(k);
 
-      // lazy: use MLE to estimate sigma2 :P
-      diff2 += accu(sum(diff % diff, 1) % zeta_local);
+      diff2 += (zeta_local.t() * (diff % diff)).t();
+
+      // diff2 += accu(sum(diff % diff, 1) % zeta_local);
       double total_weights = accu(zeta_local);
-      sum_total_weights += total_weights * p;
+      sum_total_weights += total_weights;
     }
 
-    sigma2 = (diff2 / sum_total_weights);
+    Sigma = (diff2 / sum_total_weights);
   }
 
   void runEM(int steps, double tol) {

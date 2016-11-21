@@ -1,0 +1,285 @@
+\documentclass[12pt]{article}
+\pdfoutput=1 
+
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+
+\openup 1em
+
+%macro for commenting
+\usepackage{color}
+\newcommand{\leo}[1]{{\color{blue}{\it leo: #1}}}
+\newcommand{\xbeta}{\boldsymbol X_i^T \boldsymbol\beta}
+
+
+\usepackage[round]{natbib}
+
+\usepackage{rotating}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{float}
+
+\usepackage{amsthm,amsmath} 
+\usepackage{amssymb}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+
+\usepackage{mhequ}
+\newcommand{\be}{\begin{equs}}
+\newcommand{\ee}{\end{equs}}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\bl}{\boldsymbol}
+\newcommand{\X}{\boldsymbol X}
+\newcommand{\Y}{\boldsymbol Y}
+\newcommand{\Z}{\boldsymbol Z}
+\newcommand{\W}{\boldsymbol W}
+\newcommand{\I}{\boldsymbol I}
+\newcommand{\V}{\boldsymbol V}
+\newcommand{\bmu}{\boldsymbol \mu}
+\newcommand{\bSigma}{\boldsymbol \Sigma}
+\newcommand{\E}{\bb E}
+
+
+
+
+\thispagestyle{empty}
+\baselineskip=28pt
+
+\title
+    {Automatic Repulsive Clustering \\for Finding Separable Linear Subspace}
+
+
+
+\author{
+     Leo L. Duan and
+     Joshua T. Vogelstein
+    % \textsuperscript{*}\footnotemark[2]\and
+}
+
+
+\date{}
+
+\begin{document}
+    
+\maketitle
+
+\begin{abstract}
+Mixture model based clustering methods are routinely used to divide the heterogeneous data into groups, within each the data are similar and characterized by a center. At the same time, it is often desired to maintain significant difference across groups so that the data can be clearly separated. Repulsive regularization among cluster centers serve this purpose, however, they suffer from the curse of dimensionality and specifying the repulsion parameter inevitably leads to sensitivity issue. In this article, we propose a different but simple regularization by assigning data completely into clusters without randomness, this creates automatic repulsion without need for tuning. This becomes especially useful in clustering with high dimensional data, where a separable linear subspace can be obtained. Simulations illustrate the strengths of the method and substantial gains are demonstrated in an application of clustering synaptomes.\\
+{\noindent  KEY WORDS:  Complete Membership, High Dimensional Clustering, Repulsive Regularization.}
+\end{abstract}
+
+\section{Introduction}
+
+Model based clustering \citep{fraley2002model} is used extensively in unsupervised learning. The common strategy is to treat the likelihood of each data $y_i$ for $i=1\ldots n$ as a weighted mixture of independent components $L(y_i)=\sum_{k=1}^{K} \pi_k f(y_i|\theta_k)$, where $\pi_k$ is the weight and $\theta_k$ is the parameter for the $k$th component. The standard optimization procedure introduces an important latent variable $z_i$, that assigns each data to a component as a one-out-of-$K$ random draw, coupling with an expectation-maximization (EM) (cite Dempster) algorithm to estimate $\pi_k$ and $\theta_k$. After the algorithm converges, one assigns the data to the most probable choice for $z_i$, dividing the data to $K$ partitions. For multivariate Gaussian data $y_i \in \bb R^p$, the covariance is quite useful to accommodate the different importances in each sub-dimension. For example, large variance on the diagonal could result in significant overlap of components, suggesting the sub-dimension is less importance than the others.
+
+The above method fails in high dimensional data with $p\gg n$. Due to the rank, the $p\times p$ covariance matrix cannot be estimated; even with a $p$-element diagonal matrix, there is still large uncertainty due to the small $n$, leading to poor performance. To solve this problem, it is useful to consider dimension reduction by decomposing the matrix $\bl Y= \bl X \bl V + \bl U$ with $\bl X\in \bb R^{n\times d}$ and $d\ll p$ and then use model-based clustering on $\bl X$. Various matrix factorization methods have been used to obtain the lower dimensional factor $\bl X$, such as principle component analysis (PCA) \citep{liu2003pca} and non-negative matrix factorization \citep{tamayo2007metagene}. A significant drawback, however, is that the top $d$ learned subspaces in $\bl X$ do not guarantee a good separation. For example, PCA generates subspace that maximizes the total variance, but good separation in clustering is related to large between-group variance.
+
+As a remedy, it is possible to re-adjust the orientation of $\bl V$ after clustering is done on $\bl X$. For example, when $\bl X$ is clustered, its mean can be expressed as a product of the latent variable probability $\bl W\in \bb R^{n\times k}$ over $k$ components, and their corresponding $d$-dimensional centers $\bl \mu \in \bb R^{k \times d}$. Then using $\bl{W\mu}$ to replace $\bl X$, one can update the estimate of $\bl V$. Alternating between matrix factorization and clustering aligns the subspace to a certain direction that optimizes the clustering model. However, this re-adjustment alone does not solve the low-separation issue. Indeed, model-based clustering only characterizes the degree of overlap through a mixture framework, but does not enforce good separation among the cluster centers.
+
+Therefore, it is useful to consider regularization to obtain good separation in the reduced dimensional subspace. In this regard, repulsive regularization is useful. Examples include the determinantal point process \citep{Kulesza:2012:DPP:2481023} and repulsive mixture \citep{petralia2012repulsive}. These models show good performance in the original data space. When it comes to the latent low dimensional space, there are several critical issues: the amount of the repulsion is controlled by the hyper-parameter, which is difficult to tune when the outcome is not directly observable, creating sensitivity issue; the computation is costly due to the evaluation of the determinant or pairwise repulsion.
+
+Motivated by these studies, we propose a new repulsive regularization on the component centers in the low dimensional subspace. Instead of directly applying penalty on a short distance, we modify the latent probability matrix $\W$ to a complete membership binary matrix $\hat\Z$, which is learned when maximizing the conditional likelihood. This indirectly creates repulsion among the centers. Then alternating maximization can be utilized to find the subspace where the data are separable. This model is efficient to estimate and requires no tuning, hence we refer it as automatic repulsive clustering.
+
+It is worth mentioning a different class of high dimensional clustering method, namely sparse clustering (see \cite{witten2012framework} and the references therein). The main idea is to select the subset of dimensions directly on the data space via sparsity constraint. Our focus is different, since there are many types of data that do not exhibit significant group pattern on a small dimension subset, but do so on a low dimensional latent space. For example, shape and image data commonly show difference almost everywhere, but the difference can be summarized in a projected low dimensional space. In this scenario, our approach is more suitable.
+
+The article proceeds as follows: in section 2, the modeling framework and the estimation procedure are described; in section 3, theory is provided on the automatic repulsion; in section 4, simulation illustrates the advantages; in section 5, a real data application is demonstrated via synapse clustering.
+
+
+\section{Automatic Repulsive Clustering in Reduced Dimension}
+
+\subsection{Clustering Under Reduced Dimension}
+
+We first summarize the framework that combines dimension reduction and clustering. We refer this as reduced dimension clustering.
+
+Let $\bl Y\in \bb R^{n\times p}$ be the observed data, then we assume the clustering signal reside in a low dimensional matrix $\bl X \in \bb R^{n\times d}$ with $d\ll p$. The clustering of $\bl X$ can be represented as the assignment probability matrix $\bl W\in \bb R^{n\times k}$ with respect to $k$ components $w_{i,k}= \frac {\pi_k f(x_i|\theta_k)}{\sum_k \pi_k  f(x_i|\theta_k)}$,and the cluster mean $\bl \mu \in \bb R^{k\times d}$ adding a random residual $\bl E \in \bb R^{n\times d}$. Using matrix form:
+
+\be
+\bl Y & = \bl {XV + U}
+\\     &  = \bl{(W\mu +E)V + U}
+\label{low_dim_clustering}
+\ee
+where $\bl U \in \bb R^{n\times p}$ is a matrix containing noise $U_{ij}\sim N(0, \sigma^2)$ and $\bl E \in \bb R^{n\times d}$ is the Gaussian noise with each row $\bl E'_{i,.}\sim N(\bl 0, \bl \Sigma)$. Common choice for $\bl \Sigma$ includes dense $d\times d$ matrix or simple diagonal matrix.
+
+As a comparison, consider direct clustering on the original space $\bb R^{n\times p}$:
+\be
+\bl Y & = \bl {W\mu + U}
+\ee
+where  $\bl \mu \in \bb R^{k\times p}$ and  $\bl U  \in \bb R^{n\times p}$. 
+
+The key difference lies in the error structure, in direct clustering, each row $\bl U'_{i,.} \sim   N(\bl 0, \bl\Sigma^*)$ with $\bl \Sigma^*$ as a $p\times p$ matrix, due the large dimension $p$, it is difficult to impose structure in or estimate $\bl \Sigma^*$. In reduced dimension, since the subspace projection $\bl V$ is learned, each row of the error term $\bl E'_{i,.} \bl V+ \bl U'_{i,.} \sim   N(\bl 0,\bl {V' \Sigma V} +\sigma^2 \bl I )$, which is a projection of low rank $d$ matrix to the large $p$ matrix. This low rank structure allows borrowing of strength across $p$ different dimensions and is especially useful when the sample size $n$ is small.
+
+
+\subsection{Automatic Repulsive Clustering (ARC)}
+
+We now introduce the automatic repulsive regularization. Typically the regularization is applied on $\bmu$ directly, causing sensitivity issue with tuning parameter and computing inconvenience. Instead, we regularize by replacing $\W$ with $\hat \Z$, which is the most probable choice of component for each data under $\hat z_{i,k}= 1 \left( k = {\underset{k}{\mbox{argmax}}{ \pi_k f(x_i|\theta_k)}} \right)$. As each $\mu_k$ is the average of $x_i$ weighted by $w_{i,k}$, this leads to automatic repulsion among them, stated by the following theorem:
+ 
+ 
+\begin{theorem}
+For any $k\ne k^*$, 
+$|| \frac{\sum_i w_{i,k} x_i}{\sum_i w_{i,k}} - \frac{\sum_i w_{i,k^*} x_i}{\sum_i w_{i,k^*}}||\le ||\frac{\sum_i z_{i,k} x_i}{\sum_i z_{i,k}} - \frac{\sum_i z_{i,k^*} x_i}{\sum_i z_{i,k^*}}||$
+\end{theorem}
+The proof of this theorem is provided in the appendix.
+
+The interpretation of this regularization is to force the estimate centers $\bmu_k$'s to be far apart, so that each row $\X_i$ has one of assignment probability $w_{i,k}\approx 1$. Compared to the other regularization \citep{Kulesza:2012:DPP:2481023}, this is much simple and tuning free. As we show in the next section, the estimation can be carried out by replacing the expectation step in model-based clustering with a maximization step.
+
+
+\section{Estimation}
+
+We divide the estimation into two parts: estimate the subspace by updating matrix $\bl X$, give the clustering; use ARC to cluster $\bl X$. The estimation proceeds by alternating between these two steps:
+
+\subsection{Updating the Low Dimensional Subspace}
+
+Given the clustering matrix $\bl Z$ and $\bl \mu$, the log-likelihood function is:
+
+\be
+\log L = - \frac{1}{2} \left \{ {\sum_i^n ||\Y_{i,.} - \X_{i,.} \V||^2}/{\sigma^2} + {\sum_i^n (\X_{i,.} - \Z_{i,.} \bmu)' \Sigma^{-1}  (\X_{i,.} - \Z_{i,.} \bmu)} + n\log \det  \bSigma + np \log \sigma^2 \right\}  + C
+\ee
+
+To ensure identifiability, we regularize $V_{i,j}\sim N(0,1)$. It is possible to  maximize the log-likelihood alternatively over $\V$ and $\X$, however, this would underestimate the variability of the $\V$, leading to suboptimal result. Instead, we treat $\V$ as latent variable and use EM algorithm for optimization.
+
+Note the conditional distribution for $\V$ is:
+\be
+\V_{.,j} \stackrel{indep}{\sim} N\left( (\X'\X+\I)^{-1}\X'\Y_{.,j}, \sigma^2 (\X'\X+\I)^{-1}    \right)
+\ee
+for $j=1\ldots p$.
+
+This leads to computing the expectation:
+\be
+\E\V =  (\X'\X+\I)^{-1}\X'\Y,  \qquad\E\V \V' = p\sigma^2 (\X'\X+\I)^{-1} + (\X'\X+\I)^{-1}\X'\Y \Y'\X (\X'\X+\I)^{-1}
+\ee
+
+Then maximize over $\X$:
+
+\be
+\hat \X =   \{ \Y \E\V'/\sigma^2 + \Z\bmu \bSigma^{-1}  \} (\E\V\V'/\sigma^2 + \bSigma^{-1})^{-1}
+\ee
+
+and over $\sigma^2$:
+
+\be
+\hat \sigma^2 = \{\mbox{vec} (\Y)'\mbox{vec} (\Y)  -2 \mbox{vec}  ( \hat\X')' \mbox{vec}( \E\V \Y') + \mbox{vec}  ( \hat\X')' \mbox{vec}( \E\V\V' {\hat \X}' )\}/ np
+\ee
+where $\mbox{vec}(.)$ denotes the column-wise vectorization.
+
+\subsection{Clustering}
+
+The clustering can be carried out by alternative maximization over $\hat Z$, $\bmu_k$ and $\bSigma$.
+
+\be
+\hat z_{i,k} & = 1 \left( k = {\underset{k}{\mbox{argmax}}{ \pi_k f(x_i|\theta_k)}} \right)\\
+\bmu_k & = \frac{\sum_i z_{i,k} \X_i}{\sum_i z_{i,k}}\\
+\bSigma & = \frac{\sum_k\sum_i z_{i,k} \X_i\X'_i}{\sum_k\sum_i z_{i,k}}
+\ee
+
+Then the whole estimation can be carried out by alternating in the two steps.
+
+
+\section{Simulation}
+
+Data generation:
+
+n=300
+p=2000
+d=2
+mu=1,2,3
+sigma2=0.5
+
+
+\begin{table}[H]
+\centering
+	\begin{tabular}{| l | r |}
+	\hline
+			Model & $ARI$ \\
+	\hline
+			GMM on Principle Components &  0.01  \\
+			ARC on Principle Components		& 0.31 \\
+			GMM on Flexible Reduced Dimension &  0.35  \\
+			ARC on Flexible Reduced Dimension		& {\bf 0.44} \\
+			\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+ % \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/originalY2d.pdf}
+  \caption{The 3 component view in the first 2 dimensions.}
+\end{subfigure}
+  \hfill
+   \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/ld_arc_truth.pdf}
+  \caption{The true latent 2d separable subspace view.}
+\end{subfigure}
+
+ \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/pca_gmm.pdf}
+  \caption{GMM on principle components}
+\end{subfigure}
+  \hfill
+   \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/pca_arc.pdf}
+  \caption{ARC on principle components}
+\end{subfigure}
+
+ \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/ld_gmm.pdf}
+  \caption{GMM on flexible reduced Dimension}
+\end{subfigure}
+  \hfill
+   \begin{subfigure}[b]{0.49\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/ld_arc.pdf}
+  \caption{ARC on flexible reduced Dimension}
+\end{subfigure}
+
+ \end{figure}
+
+
+
+
+\section{Application}
+\section{Discussion}
+
+
+\bibliography{reference}
+\bibliographystyle{plainnat}
+
+
+\section{Appendix}
+
+\subsection{Proof of Theorem}
+
+Consider the finite mixture model with the center estimates as $\mu_k = \frac{\sum_i \bb E z_{k,i} y_i}{\sum_i \bb E z_{k,i}}$, and complete membership model with the center estimates as $\mu^*_k = \frac{\sum_i  z_{k,i} y_i}{\sum_i  z_{k,i}}$. We are interested in comparing the pairwise distance among the centers from the two models.
+
+Let the pairwise distance be $||\mu_1 - \mu_2||$ between two centers in the finite mixture. As the $||\mu_1 - \mu_2||= \sqrt{ \sum_{l=1}^{p} ||\mu_{1,l} - \mu_{2,l}||^2}$, we focus on one sub-dimension $\mu_{1,l} - \mu_{2,l}$, without loss of generality, we assume $\mu_{1,l} > \mu_{2,l}$.
+
+For any $y_{j,l} \ge  \frac{\sum_{i\ne j} \bb E z_{1,i} y_{i,l} }{  \sum_{i\ne j} E z_{1,i} } \ge \frac{\sum_{i\ne j} \bb E z_{2,i} y_{i,l} }{  \sum_{i\ne j} E z_{2,i} } $ and $ \bb E z_{1,j} \ge \bb E z_{2,j}$,
+\be
+\mu_{1,l} - \mu_{2,l} = & \frac{\sum_{i\ne j} \bb E z_{1,i} y_{i,l}  + \bb E z_{1,j} y_{j,l}}{  \sum_{i\ne j} \bb E z_{1,i}  + \bb E z_{1,j} }  -  \frac{\sum_{i\ne j} \bb E z_{2,i} y_{i,l}  + \bb E z_{2,j} y_{j,l}}{  \sum_{i\ne j} \bb E z_{2,i}  + \bb E z_{2,j} } \\
+ \le  & \frac{\sum_{i\ne j} \bb E z_{1,i} y_{i,l}  +  y_{j,l}}{  \sum_{i\ne j} \bb E z_{1,i}  + 1 }  -  \frac{\sum_{i\ne j} \bb E z_{2,i} y_{i,l} }{  \sum_{i\ne j} \bb E z_{2,i}  }
+\ee
+
+For any $y_{j,l} \le   \frac{\sum_{i\ne j} \bb E z_{2,i} y_{i,l} }{  \sum_{i\ne j} E z_{2,i} } \le  \frac{\sum_{i\ne j} \bb E z_{1,i} y_{i,l} }{  \sum_{i\ne j} E z_{1,i} }$ and $ \bb E z_{1,j} \le \bb E z_{2,j}$,
+
+\be
+\mu_{1,l} - \mu_{2,l}  \le  & \frac{\sum_{i\ne j} \bb E z_{1,i} y_{i,l} }{  \sum_{i\ne j} \bb E z_{1,i}  }  -  \frac{\sum_{i\ne j} \bb E z_{2,i} y_{i,l} +  y_{j,l} }{  \sum_{i\ne j} \bb E z_{2,i}+1  }
+\ee
+
+ By induction, this converts all the $E z_{k,i}$ to $z_{k,i}$ hence $\mu_{1,l} - \mu_{2,l}\le \mu^{*}_{1,l} - \mu^{*}_{2,l}$.
+
+
+\end{document}
