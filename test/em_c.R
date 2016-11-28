@@ -50,41 +50,41 @@ source("ARC.R")
 source("PCAC.R")
 
 pca_M<-PCAC(Y,K,d)
+# pcaGMM_M<-PCAC(Y,K,d,repul = F)
+
+# ldgmm_M<-ARC(Y,K,d,randomStart = F,repul = F)
 arc_M<-ARC(Y,K,d,randomStart = T)
-pcaGMM_M<-PCAC(Y,K,d,repul = F)
-
-ldgmm_M<-ARC(Y,K,d,randomStart = T,repul = F)
 
 
-pdf("originalY2d.pdf",6,6)
+# pdf("originalY2d.pdf",6,6)
 plot(Y[,1:2],col=mu1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
-pdf("originalX.pdf",6,6)
+# pdf("originalX.pdf",6,6)
 plot(X,col=mu1, xlab="",ylab="")
-dev.off()
+# dev.off()
 # plot(Y[,1:2],col=mu1)
 
-pdf("pca_gmm.pdf",6,6)
+# pdf("pca_gmm.pdf",6,6)
 plot(pcaGMM_M$X, col=pcaGMM_M$M +1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
-pdf("pca_arc.pdf",6,6)
+# pdf("pca_arc.pdf",6,6)
 plot(pca_M$X, col=pca_M$M +1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
-pdf("ld_gmm.pdf",6,6)
+# pdf("ld_gmm.pdf",6,6)
 plot(ldgmm_M$X, col=ldgmm_M$M +1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
-pdf("ld_arc.pdf",6,6)
+# pdf("ld_arc.pdf",6,6)
 plot(arc_M$X, col=arc_M$M +1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
 
-pdf("ld_arc_truth.pdf",6,6)
+# pdf("ld_arc_truth.pdf",6,6)
 plot(arc_M$X, col=4-mu1, xlab="",ylab="")
-dev.off()
+# dev.off()
 
 
 adjustedRandIndex(pca_M$M,mu1)
@@ -105,13 +105,12 @@ Y<- as.matrix(iris[,1:4])
 # plot(X)
 K<-3
 ini<- as.matrix(kmpp(Y,K))
-raw_Clust<- jkmeansEM(Y,k = K,j= 2,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
-raw_M<- raw_Clust$M
+# raw_Clust<- jkmeansEM(Y,k = K,j= 2,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+# raw_M<- raw_Clust$M
 
 mclust<-Mclust(Y,G = K)
 raw_M<-apply(mclust$z, 1, function(x){c(1:K)[x==max(x)]})
 ####
-
 pca_M<-PCAC(Y,K)
 arc_M<-ARC(Y,K)
 ###
@@ -126,8 +125,8 @@ sum((3-arc_M$M)!=as.numeric(iris[,5]))
 sum((3-pca_M$M)!=as.numeric(iris[,5]))
 sum((raw_M)!=as.numeric(iris[,5]))
 
-# plot(arc_M)
-# plot(pca_M)
+# plot(arc_M$M)
+# plot(pca_M$M)
 # plot(raw_M)
 
 
@@ -139,3 +138,6 @@ sparse_M<- as.numeric(km.out[[1]]$Cs)
 adjustedRandIndex(sparse_M, iris[,5])
 
 plot(sparse_M)
+
+adjustedRandIndex(sparse_M,mu1)
+

@@ -6,7 +6,6 @@ class Mixture {
   int n;
   int p;
   int K;  // max components
-  int J;  // truncation
 
   mat mu;
   vec Sigma;
@@ -14,14 +13,10 @@ class Mixture {
   mat zeta;
 
   bool fixW;
-  bool normalizeZeta;
-  bool flexJ;
-  double zetaTrunc;
 
-  Mixture(mat _y, int _K, int _J) {
+  Mixture(mat _y, int _K) {
     y = _y;
     K = _K;
-    J = _J;
     n = y.n_rows;
     p = y.n_cols;
 
@@ -34,8 +29,8 @@ class Mixture {
     zeta = ones<mat>(n, K);
   }
 
-  void initialize(mat meansInput, bool useKmeansIni, bool _fixW, bool _flexJ,
-                  double _zetaTrunc, double sigma2_ini, bool _normalizeZeta) {
+  void initialize(mat meansInput, bool useKmeansIni, bool _fixW,
+                  double sigma2_ini) {
     Sigma.fill(sigma2_ini);
 
     if (useKmeansIni) {
@@ -44,27 +39,18 @@ class Mixture {
       mu = means.t();
 
       // initialize sigma2 via K-means
-      int _J = J;  // back up the user defined J
-      J = 1;
       Expectation();
-
       updateSigma();
-
-      J = _J;
 
     } else {
       mu = meansInput;
     }
 
-    normalizeZeta = _normalizeZeta;
     fixW = _fixW;
-    flexJ = _flexJ;
-    zetaTrunc = _zetaTrunc;
   }
 
   double loglik(rowvec x, rowvec mu, vec Sigma) {
     rowvec diff = x - mu;
-
     return -accu(diff % diff / Sigma.t()) / 2.0 - 1.0 / 2.0 * accu(log(Sigma));
   }
 
@@ -91,38 +77,22 @@ class Mixture {
         rowvec y_local = y.row(i);
         rowvec mu_local = mu.row(k);
         zeta(i, k) = log(w(k)) + loglik(y_local, mu_local, Sigma);
-        if (std::isnan(zeta(i, k))) {
-          cout << w(k) << endl;
-          cout << loglik(y_local, mu_local, Sigma) << endl;
-          cout << y_local << endl;
-          cout << mu_local << endl;
-          // cout << Sigma << endl;
-        }
+        // if (std::isnan(zeta(i, k))) {
+        //   cout << w(k) << endl;
+        //   cout << loglik(y_local, mu_local, Sigma) << endl;
+        //   cout << y_local << endl;
+        //   cout << mu_local << endl;
+        //   // cout << Sigma << endl;
+        // }
       }
+
       rowvec local_zeta = zeta.row(i);
 
-      local_zeta -= local_zeta.max();
+      rowvec local_zeta_binary = zeros<rowvec>(K);
 
-      if (!flexJ) {
-        uvec indices = sort_index(local_zeta, "descend");
+      local_zeta_binary(local_zeta.index_max()) = 1;
 
-        int trunc_idx = indices(J - 1);
-
-        local_zeta = exp(local_zeta);
-
-        local_zeta = local_zeta / accu(local_zeta);
-
-        local_zeta(find(local_zeta < local_zeta(trunc_idx))).fill(0);
-      }
-      if (flexJ) {
-        local_zeta = exp(local_zeta);
-        local_zeta /= accu(local_zeta);
-        local_zeta(find(local_zeta < zetaTrunc)).fill(0);
-      }
-      if (normalizeZeta)
-        zeta.row(i) = local_zeta / accu(local_zeta);
-      else
-        zeta.row(i) = local_zeta;
+      zeta.row(i) = local_zeta_binary;
     }
   }
 
@@ -136,15 +106,9 @@ class Mixture {
 
       // compute mu
       if (total_weights > 0)
-        mu.row(k) = sum(y % repmat(weights, 1, p), 0) / total_weights;
+        mu.row(k) = weights.t() * y / total_weights;
       else
         mu.row(k) = trans(randn(p));
-
-      // // compute sigma2
-      // mat diff = (y - repmat(mu.row(k), n, 1));
-
-      // diff2 += accu(sum(diff % diff, 1) % weights);
-      // sum_total_weights += total_weights * p;
 
       // compute w
       if (!fixW) w(k) = accu(weights) / (double)n;

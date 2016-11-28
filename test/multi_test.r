@@ -1,3 +1,5 @@
+setwd("~/git/jkmeans/test/")
+source("kmpp.r")
 n<- 2000
 p<- 2000
 d<- 2
@@ -19,12 +21,15 @@ mu1[(n/K*2+1):(n/K*3)]<-3
 
 mu<- matrix(mu1,n,2)
 
-X<- matrix(rnorm(n*2,mu),n)
+X<- matrix(rnorm(n*2,mu,0.5),n)
 X[,2]<- rnorm(n, X[,2],sd=1)
 
 ini<- as.matrix(kmpp(X,K))
 
+require("jkmeans")
 
-jk<- jkmeansEM(X,k = K,j= 1,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+jk<- jkmeansEM(y= X,k = K,steps = 1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 1)
 
 jk$Sigma
+
+jk$mu

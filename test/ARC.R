@@ -1,6 +1,6 @@
 ARC<-function(Y,K,d=2, randomStart= FALSE, repul=TRUE){
   
-
+  
   
   svdY<-svd(Y,nu = d,nv = d)
   
@@ -9,17 +9,17 @@ ARC<-function(Y,K,d=2, randomStart= FALSE, repul=TRUE){
   else
     X<-   svdY$u * svdY$d[1]
   if(randomStart){
-  X<- X + matrix(rnorm(length(c(X)),sd = 1),nrow(X))
+    X<- X+matrix(rnorm(length(c(X)),sd = 1),nrow(X))
   }
   
   
-
+  
   ini<- as.matrix(kmpp(X,K))
   
   # plot(X,X0)
   
   
-  jk<- jkmeansEM(X,k = K,j= 1,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+  jk<- jkmeansEM(y= X,k = K,steps = 1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1)
   
   Sigma<-  diag(c(jk$Sigma),d)
   
@@ -44,12 +44,12 @@ ARC<-function(Y,K,d=2, randomStart= FALSE, repul=TRUE){
     # for(j in 1:10){
     XX<- t(X)%*%X
     XY<- t(X)%*%Y
-    XXinv<- solve(XX+diag(100,d))
+    XXinv<- solve(XX+diag(1E-3,d))
     
     #compute expectation
-    EV<- solve(XX,XY)
-    temp<- XXinv%*%XY
-    EVV<- p*sigma2*XXinv +  temp %*% t(temp)
+    # EV<- solve(XX,XY)
+    EV<- XXinv%*%XY
+    EVV<- p*sigma2*XXinv +  EV %*% t(EV)
     
     #compute sigma2
     sigma2<- (sum(c(Y)*c(Y))-2* sum(c(t(X)) * c(EV%*%t(Y))) + sum(c(t(X)) * c(EVV%*%t(X)))) /n/p
@@ -57,18 +57,20 @@ ARC<-function(Y,K,d=2, randomStart= FALSE, repul=TRUE){
     #get max of X
     
     m<- Y%*%t(EV)/sigma2 + Zmu%*%solve(Sigma)
-    v<- solve(EVV/sigma2+solve(Sigma))
+    v<- solve(EVV/sigma2+solve(Sigma) + +diag(1,d))
     X<- m%*%v
     # }
     
     #clustering
     ini<- as.matrix(jk$mu)
-    if(repul){j=1}
-    else{j=K}
-    jk<- jkmeansEM(X,k = K,j= j,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+    # if(repul){j=1}
+    # else{j=K}
+    # jk<- jkmeansEM(X,k = K,j= j,1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1,normalizeZeta = T)
+    jk<- jkmeansEM(y= X,k = K,steps = 1000,tol = 1E-15,fixW = F, meansIni = ini ,useKmeansIni = F,sigma2_ini = 0.1)
+    
     Zmu<- jk$zeta %*% jk$mu
     
     Sigma<-  diag(c(jk$Sigma),d)
   }
-  return(list("M"=jk$M, "X"=X,"V"=EV,"mu"=jk$mu))
+  return(list("M"=jk$M, "X"=X,"V"=EV,"mu"=jk$mu, "w"=jk$w))
 }

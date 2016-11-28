@@ -30,8 +30,9 @@
 \captionsetup{compatibility=false}
 
 \usepackage[utf8]{inputenc}
-\usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
+%\usepackage{algorithm}
+%\usepackage[noend]{algpseudocode}
+\usepackage[]{algorithm2e}
 
 
 \newtheorem{theorem}{Theorem}
@@ -150,17 +151,17 @@ Given the clustering matrix $\bl Z$ and $\bl \mu$, the log-likelihood function i
 \log L = - \frac{1}{2} \left \{ {\sum_i^n ||\Y_{i,.} - \X_{i,.} \V||^2}/{\sigma^2} + {\sum_i^n (\X_{i,.} - \Z_{i,.} \bmu)' \Sigma^{-1}  (\X_{i,.} - \Z_{i,.} \bmu)} + n\log \det  \bSigma + np \log \sigma^2 \right\}  + C
 \ee
 
-To ensure identifiability, we regularize $V_{i,j}\sim N(0,1)$. It is possible to  maximize the log-likelihood alternatively over $\V$ and $\X$, however, this would underestimate the variability of the $\V$, leading to suboptimal result. Instead, we treat $\V$ as latent variable and use EM algorithm for optimization.
+To ensure identifiability, we regularize $V_{i,j}\sim N(0,\nu)$, where $\nu$ is a large variance (e.g. $10^6$). It is possible to  maximize the log-likelihood alternatively over $\V$ and $\X$, however, this would underestimate the variability of the $\V$, leading to suboptimal result. Instead, we treat $\V$ as latent variable and use EM algorithm for optimization.
 
 Note the conditional distribution for $\V$ is:
 \be
-\V_{.,j} \stackrel{indep}{\sim} N\left( (\X'\X+\I)^{-1}\X'\Y_{.,j}, \sigma^2 (\X'\X+\I)^{-1}    \right)
+\V_{.,j} \stackrel{indep}{\sim} N\left( (\X'\X+\I \nu)^{-1}\X'\Y_{.,j}, \sigma^2 (\X'\X+\I\nu)^{-1}    \right)
 \ee
 for $j=1\ldots p$.
 
 This leads to computing the expectation:
 \be
-\E\V =  (\X'\X+\I)^{-1}\X'\Y,  \qquad\E\V \V' = p\sigma^2 (\X'\X+\I)^{-1} + (\X'\X+\I)^{-1}\X'\Y \Y'\X (\X'\X+\I)^{-1}
+\E\V =  (\X'\X+\I \nu)^{-1}\X'\Y,  \qquad\E\V \V' = p\sigma^2 (\X'\X+\I \nu)^{-1} + (\X'\X+\I \nu)^{-1}\X'\Y \Y'\X (\X'\X+\I \nu)^{-1}
 \ee
 
 Then maximize over $\X$:
@@ -176,6 +177,14 @@ and over $\sigma^2$:
 \ee
 where $\mbox{vec}(.)$ denotes the column-wise vectorization.
 
+
+As the loss function, the expected log-likelihood is:
+
+\be
+\bb E \log L = &  - \frac{1}{2}  [    \{\mbox{vec} (\Y)'\mbox{vec} (\Y)  -2 \mbox{vec}  ( \hat\X')' \mbox{vec}( \E\V \Y') + \mbox{vec}  ( \hat\X')' \mbox{vec}( \E\V\V' {\hat \X}' )\}/{\sigma^2} +\\
+& {\sum_i^n (\X_{i,.} - \Z_{i,.} \bmu)' \Sigma^{-1}  (\X_{i,.} - \Z_{i,.} \bmu)} + n\log \det  \bSigma + np \log \sigma^2 ]
+\ee
+
 \subsection{Clustering}
 
 The clustering can be carried out by alternative maximization over $\hat Z$, $\bmu_k$ and $\bSigma$.
@@ -186,11 +195,27 @@ The clustering can be carried out by alternative maximization over $\hat Z$, $\b
 \bSigma & = \frac{\sum_k\sum_i z_{i,k} \X_i\X'_i}{\sum_k\sum_i z_{i,k}}
 \ee
 
-Then the whole estimation can be carried out by alternating in the two steps.
+Then the whole estimation can be carried out by alternating in the two steps. To summarize, the estimating algorithm is shown in Algorithm~\ref{arc_algo}.
 
 
-\section{Simulation}
+\begin{algorithm}[H]
+ initialization\;
+ \While{Expected likelihood $\bb E \log L$ change $>$ threshold}{
+  Using $\hat \Z \hat \bmu$, compute expectation: $\bb E \V$ and $\bb E \V\V'$\;
+  Using expected values, maximize: $\hat \X$ \;
+   \While{change in $\hat \bmu$ $>$ threshold}{
+   		  Compute MLEs: $\hat \bmu$ and $\hat \bSigma$\;
+		  Compute Most Probable Assignment: $\hat \Z$ \;
+	}
+ Compute expected likelihood $\bb E \log L$\;
+ }
+ \caption{Estimation Algorithm for Automatic Repulsive Clustering}
+ \label{arc_algo}
+\end{algorithm}
 
+\section{Experiments}
+
+\subsection{Synthetic Data}
 Data generation:
 
 n=300
@@ -216,42 +241,47 @@ sigma2=0.5
 
 \begin{figure}[H]
  % \centering
-  \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/originalY2d.pdf}
-  \caption{The 3 component view in the first 2 dimensions.}
+  \begin{subfigure}[b]{0.32\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/simX}
+  \caption{The lower dimensions used in data generation.}
 \end{subfigure}
   \hfill
-   \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/ld_arc_truth.pdf}
-  \caption{The true latent 2d separable subspace view.}
-\end{subfigure}
-
- \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/pca_gmm.pdf}
-  \caption{GMM on principle components}
+   \begin{subfigure}[b]{0.32\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/simPCAX}
+  \caption{The lower dimensions discovered by PCA.}
 \end{subfigure}
   \hfill
-   \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/pca_arc.pdf}
-  \caption{ARC on principle components}
+ \begin{subfigure}[b]{0.32\textwidth}
+ \includegraphics[width=0.8\textwidth]{pics/simARCX}
+  \caption{The lower dimensions discovered by ARC.}
 \end{subfigure}
-
- \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/ld_gmm.pdf}
-  \caption{GMM on flexible reduced Dimension}
-\end{subfigure}
-  \hfill
-   \begin{subfigure}[b]{0.49\textwidth}
- \includegraphics[width=0.8\textwidth]{pics/ld_arc.pdf}
-  \caption{ARC on flexible reduced Dimension}
-\end{subfigure}
-
  \end{figure}
 
+\subsection{Real Data}
+
+
+MNIST:
+
+
+Four digits: $0,3,7,9$. Pick $100$ samples for each digit.
+
+Compute average ARI over $10$ tests.
+
+\begin{table}[H]
+\centering
+	\begin{tabular}{| l | r |}
+	\hline
+			Model & $ARI$ \\
+	\hline
+			GMM & 0.50 \\
+			PCA + GMM &  0.38  \\
+			ARC		& {\bf 0.57} \\
+			\hline
+	\end{tabular}
+\end{table}
 
 
 
-\section{Application}
 \section{Discussion}
 
 

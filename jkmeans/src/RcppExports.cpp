@@ -7,24 +7,52 @@
 using namespace Rcpp;
 
 // jkmeansEM
-Rcpp::List jkmeansEM(const arma::mat& y, int k, int j, int steps, double tol, bool fixW, bool flexJ, double zetaTrunc, bool useKmeansIni, const arma::mat& meansIni, double sigma2_ini, bool normalizeZeta);
-RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP jSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP flexJSEXP, SEXP zetaTruncSEXP, SEXP useKmeansIniSEXP, SEXP meansIniSEXP, SEXP sigma2_iniSEXP, SEXP normalizeZetaSEXP) {
+Rcpp::List jkmeansEM(const arma::mat& y, int k, const arma::mat& meansIni, int steps, double tol, bool fixW, bool useKmeansIni, double sigma2_ini);
+RcppExport SEXP jkmeans_jkmeansEM(SEXP ySEXP, SEXP kSEXP, SEXP meansIniSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP fixWSEXP, SEXP useKmeansIniSEXP, SEXP sigma2_iniSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type meansIni(meansIniSEXP);
     Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< bool >::type fixW(fixWSEXP);
-    Rcpp::traits::input_parameter< bool >::type flexJ(flexJSEXP);
-    Rcpp::traits::input_parameter< double >::type zetaTrunc(zetaTruncSEXP);
     Rcpp::traits::input_parameter< bool >::type useKmeansIni(useKmeansIniSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type meansIni(meansIniSEXP);
     Rcpp::traits::input_parameter< double >::type sigma2_ini(sigma2_iniSEXP);
-    Rcpp::traits::input_parameter< bool >::type normalizeZeta(normalizeZetaSEXP);
-    __result = Rcpp::wrap(jkmeansEM(y, k, j, steps, tol, fixW, flexJ, zetaTrunc, useKmeansIni, meansIni, sigma2_ini, normalizeZeta));
+    __result = Rcpp::wrap(jkmeansEM(y, k, meansIni, steps, tol, fixW, useKmeansIni, sigma2_ini));
+    return __result;
+END_RCPP
+}
+// rDARC
+Rcpp::List rDARC(const arma::mat& Y, int d, int k, const arma::mat& meansIni, int steps, double tol, bool randomStart, bool fixW, double sigma2_ini, int ver);
+RcppExport SEXP jkmeans_rDARC(SEXP YSEXP, SEXP dSEXP, SEXP kSEXP, SEXP meansIniSEXP, SEXP stepsSEXP, SEXP tolSEXP, SEXP randomStartSEXP, SEXP fixWSEXP, SEXP sigma2_iniSEXP, SEXP verSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type d(dSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type meansIni(meansIniSEXP);
+    Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type randomStart(randomStartSEXP);
+    Rcpp::traits::input_parameter< bool >::type fixW(fixWSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2_ini(sigma2_iniSEXP);
+    Rcpp::traits::input_parameter< int >::type ver(verSEXP);
+    __result = Rcpp::wrap(rDARC(Y, d, k, meansIni, steps, tol, randomStart, fixW, sigma2_ini, ver));
+    return __result;
+END_RCPP
+}
+// kmpp
+Rcpp::List kmpp(const arma::mat& Y, int k);
+RcppExport SEXP jkmeans_kmpp(SEXP YSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    __result = Rcpp::wrap(kmpp(Y, k));
     return __result;
 END_RCPP
 }
