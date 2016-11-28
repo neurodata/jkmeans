@@ -55,8 +55,9 @@ class Mixture {
   }
 
   double compTotalLoglik() {
-    double marginal_loglik = 0;
+    vec marginal_loglik = zeros<vec>(K);
 
+#pragma omp parallel for
     for (int k = 0; k < K; ++k) {
       mat diff = (y - repmat(mu.row(k), n, 1));
 
@@ -65,13 +66,14 @@ class Mixture {
       double l = exp(-accu(diff2.each_row() / Sigma.t()) / 2.0 -
                      1 / 2.0 * accu(log(Sigma)));
 
-      marginal_loglik += w(k) * l;
+      marginal_loglik(k) = w(k) * l;
     }
 
-    return accu(log(marginal_loglik));
+    return log(accu(marginal_loglik));
   }
 
   void Expectation() {
+#pragma omp parallel for
     for (int i = 0; i < n; ++i) {
       for (int k = 0; k < K; ++k) {
         rowvec y_local = y.row(i);
@@ -100,6 +102,7 @@ class Mixture {
     double diff2 = 0;
     double sum_total_weights = 0;
 
+#pragma omp parallel for
     for (int k = 0; k < K; ++k) {
       vec weights = zeta.col(k);
       double total_weights = accu(weights);
@@ -118,21 +121,22 @@ class Mixture {
   }
 
   void updateSigma() {
-    vec diff2 = zeros(p);
-    double sum_total_weights = 0;
+    mat diff2K = zeros<mat>(p, K);
+    vec sum_total_weights = zeros<vec>(K);
+
+#pragma omp parallel for
     for (int k = 0; k < K; ++k) {
       mat diff = y.each_row() - mu.row(k);
 
       vec zeta_local = zeta.col(k);
 
-      diff2 += (zeta_local.t() * (diff % diff)).t();
+      diff2K.col(k) = (zeta_local.t() * (diff % diff)).t();
 
-      // diff2 += accu(sum(diff % diff, 1) % zeta_local);
       double total_weights = accu(zeta_local);
-      sum_total_weights += total_weights;
+      sum_total_weights(k) = total_weights;
     }
 
-    Sigma = (diff2 / sum_total_weights);
+    Sigma = sum(diff2K, 1) / accu(sum_total_weights);
   }
 
   void runEM(int steps, double tol) {

@@ -23,7 +23,7 @@ n<- 300
 p<- 1000
 d<- 2
 sigma2<- 1
-tau<- 0.1
+tau<- 0.2
 Sigma<- diag(tau,d)
 
 ###################################
@@ -66,8 +66,8 @@ mclust<-Mclust(Y,G = K,modelNames = "VEI")
 raw_M<-apply(mclust$z, 1, function(x){c(1:K)[x==max(x)]})
 
 
-pca_M<-PCAC(Y,K,d=2)
-arc_M<- rDARC(Y,d = 2,k = K,meansIni = matrix(1,2),steps = 1E3,sigma2_ini = 0.1,randomStart = F,ver = 2)
+pca_M<-PCAC(Y,K,d=3)
+arc_M<- rDARC(Y,d = 3,k = K,meansIni = matrix(1,2),steps = 1E3,sigma2_ini = 0.1,randomStart = F,ver = 2)
 # arc_M<- ARC(Y,K,d = 2)
 
 pdf("simX.pdf",6,6)

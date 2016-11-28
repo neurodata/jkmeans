@@ -200,10 +200,10 @@ Then the whole estimation can be carried out by alternating in the two steps. To
 
 \begin{algorithm}[H]
  initialization\;
- \While{Expected likelihood $\bb E \log L$ change $>$ threshold}{
+ \While{Change in expected likelihood $\Delta \bb E \log L$ $>$ threshold}{
   Using $\hat \Z \hat \bmu$, compute expectation: $\bb E \V$ and $\bb E \V\V'$\;
   Using expected values, maximize: $\hat \X$ \;
-   \While{change in $\hat \bmu$ $>$ threshold}{
+   \While{change in estimated $\Delta \hat \bmu$ $>$ threshold}{
    		  Compute MLEs: $\hat \bmu$ and $\hat \bSigma$\;
 		  Compute Most Probable Assignment: $\hat \Z$ \;
 	}
