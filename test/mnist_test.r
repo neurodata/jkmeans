@@ -7,86 +7,73 @@ source("PCAC.R")
 
 mnist<- read.csv("../mnist_data/mnist.csv",header = F)
 
-pick<- c(0,3,7,9)
-# pick<- c(0:9)
+# pick<- c(0,3,7,9)
+pick<- c(0:9)
+n<- 50
+p<- 28^2
 
-subset<- c(sapply(pick*1000, function(x){x+ c(1:100)*5}))
 
 # subset<- c(sapply(pick*1000, function(x){x+ c(1:1000)}))
 
-mnist_subset<- mnist[,subset]
-Y<-t(mnist_subset)
 
-
-M<- rep(pick,each=100)
-
-# M<- rep(pick,each=1000)
-K<- 4
-
-# mclust<-Mclust(Y,G = K,modelNames = "VEI")
-# raw_M<-apply(mclust$z, 1, function(x){c(1:K)[x==max(x)]})
-
-# svd0<- svd(Y)
 
 ######
 
 #######
 
 
-mclust<-Mclust(Y,G = K)
-raw_M<-apply(mclust$z, 1, function(x){c(1:K)[x==max(x)]})
-adjustedRandIndex(raw_M, M)
+# mclust<-Mclust(Y,G = K)
 
-ari<- numeric()
-for(i in 1:10){
-  pca_M<-PCAC(Y,K,d = 6)
-  ari<- c(ari,adjustedRandIndex(pca_M$M, M))
+
+testMNIST<- function(n=100){
+  
+  s<- sample(1:1000,n,replace = F)
+  subset<- c(sapply(pick*1000, function(x){x+ s}))
+  mnist_subset<- mnist[,subset]
+  Y<-t(mnist_subset)/255
+  M<- rep(pick,each=n)
+  K<- length(pick)
+  # Y<- (Y-mean(Y))/sd(Y)
+  
+  
+  
+  raw<- jkmeansEM(Y,k = K,useKmeansIni = T,meansIni = matrix(rep(1,K*p),nrow = K),sigma2_ini = 0.1,fixW = F)
+  print("raw") 
+  pca<- PCAC(Y,K,d = 6)
+  print("pca") 
+  arc<- rDARC(Y,d = 6,k = K,meansIni = matrix(1,2),steps = 1E3,sigma2_ini = 0.1,randomStart = F,ver = 1)
+  print("arc") 
+  
+  c(adjustedRandIndex(raw$M,M),
+    adjustedRandIndex(pca$M, M),
+    adjustedRandIndex(arc$M, M))
 }
 
-mean(ari)
+t50<- sapply(c(1:10), function(x)testMNIST(50))
 
-arc_ari<- numeric()
-for(i in 1:10){
-  arc_M<- rDARC(Y,d = 6,k = K,meansIni = matrix(1,2),steps = 1E3,sigma2_ini = 0.1,randomStart = F,ver = 1,fixW = F)
-  arc_ari<- c(arc_ari,  adjustedRandIndex(arc_M$M, M))
+
+rowSDs<-function(x){
+  apply(x, 1, function(x)sd(x,na.rm = T))
 }
 
-image(matrix(arc_M$mu[1,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[2,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[3,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[4,]%*%arc_M$EV,28,28))
 
-plot(arc_M$M)
+save(t50, file="t50.Rda")
 
+load(file="t50.Rda")
 
-arc_M$X[4,]
-arc_M$mu[4,]
-
-image(matrix(arc_M$X[1,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[1,]%*%arc_M$EV,28,28))
-image(matrix(Y[1,],28,28))
-
-image(matrix(arc_M$X[101,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[2,]%*%arc_M$EV,28,28))
-image(matrix(Y[101,],28,28))
-
-image(matrix(arc_M$X[201,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[4,]%*%arc_M$EV,28,28))
-image(matrix(Y[201,],28,28))
-
-image(matrix(arc_M$X[350,]%*%arc_M$EV,28,28))
-image(matrix(arc_M$mu[3,]%*%arc_M$EV,28,28))
-image(matrix(Y[303,],28,28))
+t50[t50==0]<- NA
+rowMeans(t50,na.rm = T)
+rowSDs(t50)
 
 
 
 
 
-mean(arc_ari)
+require("sparcl")
 
+#sparse Cl
+km.perm <- KMeansSparseCluster.permute(Y,K,wbounds=seq(3,7,len=15),nperms=5,)
+km.out <- KMeansSparseCluster(Y,K,wbounds=km.perm$bestw)
+sparse_M<- as.numeric(km.out[[1]]$Cs)
 
-plot(raw_M)
-plot(pca_M$M)
-
-
-
+adjustedRandIndex(sparse_M, M)

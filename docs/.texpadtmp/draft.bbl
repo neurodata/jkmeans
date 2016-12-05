@@ -1,4 +1,4 @@
-\begin{thebibliography}{6}
+\begin{thebibliography}{9}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -12,17 +12,35 @@ Chris Fraley and Adrian~E Raftery.
 \newblock \emph{Journal of the American statistical Association}, 97\penalty0
   (458):\penalty0 611--631, 2002.
 
+\bibitem[Jing et~al.(2013)Jing, Ng, and Zeng]{jing2013dictionary}
+Liping Jing, Michael~K Ng, and Tieyong Zeng.
+\newblock Dictionary learning-based subspace structure identification in
+  spectral clustering.
+\newblock \emph{IEEE transactions on neural networks and learning systems},
+  24\penalty0 (8):\penalty0 1188--1199, 2013.
+
 \bibitem[Kulesza and Taskar(2012)]{Kulesza:2012:DPP:2481023}
 Alex Kulesza and Ben Taskar.
 \newblock \emph{Determinantal Point Processes for Machine Learning}.
 \newblock Now Publishers Inc., Hanover, MA, USA, 2012.
 \newblock ISBN 1601986289, 9781601986283.
 
+\bibitem[Lee and Choi(2015)]{lee2015bayesian}
+Juho Lee and Seungjin Choi.
+\newblock Bayesian hierarchical clustering with exponential family:
+  Small-variance asymptotics and reducibility.
+\newblock In \emph{AISTATS}, 2015.
+
 \bibitem[Liu et~al.(2003)Liu, Zhang, Palumbo, and Lawrence]{liu2003pca}
 Jun~S Liu, Junni~L Zhang, Michael~J Palumbo, and Charles~E Lawrence.
 \newblock Bayesian clustering with variable and transformation selections.
 \newblock In \emph{Bayesian Statistics 7: Proceedings of the Seventh Valencia
   International Meeting}, page 249. Oxford University Press, USA, 2003.
+
+\bibitem[Niu et~al.(2011)Niu, Dy, and Jordan]{niu2011dimensionality}
+Donglin Niu, Jennifer~G Dy, and Michael~I Jordan.
+\newblock Dimensionality reduction for spectral clustering.
+\newblock In \emph{AISTATS}, pages 552--560, 2011.
 
 \bibitem[Petralia et~al.(2012)Petralia, Rao, and Dunson]{petralia2012repulsive}
 Francesca Petralia, Vinayak Rao, and David~B Dunson.

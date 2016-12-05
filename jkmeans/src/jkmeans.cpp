@@ -46,9 +46,8 @@ Rcpp::List rDARC(const arma::mat& Y, int d, int k, const arma::mat& meansIni,
       Rcpp::Named("Sigma") = rdARC.mix->Sigma,
       Rcpp::Named("zeta") = rdARC.mix->zeta, Rcpp::Named("X") = rdARC.X,
       Rcpp::Named("EV") = rdARC.EV,
-      Rcpp::Named("M") = rdARC.mix->clusteringMAP()
-
-          );
+      Rcpp::Named("M") = rdARC.mix->clusteringMAP(),
+      Rcpp::Named("loglik") = rdARC.loglik);
 }
 
 // [[Rcpp::export]]

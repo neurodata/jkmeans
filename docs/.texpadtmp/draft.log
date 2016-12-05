@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  28 NOV 2016 13:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  4 DEC 2016 22:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -617,39 +617,61 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 80.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5] [6] <pics/simX.pdf, id=39, 433.62pt x 433.62pt>
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5] [6] <pics/repulData.pdf, id=39, 867.24pt x 289.08pt>
+File: pics/repulData.pdf Graphic file (type pdf)
+ <use pics/repulData.pdf>
+Package pdftex.def Info: pics/repulData.pdf used on input line 229.
+(pdftex.def)             Requested size: 516.47249pt x 172.16573pt.
+ <pics/repulMean.pdf, id=40, 867.24pt x 289.08pt>
+File: pics/repulMean.pdf Graphic file (type pdf)
+ <use pics/repulMean.pdf>
+Package pdftex.def Info: pics/repulMean.pdf used on input line 235.
+(pdftex.def)             Requested size: 516.47249pt x 172.16573pt.
+ [7 <./pics/repulData.pdf> <./pics/repulMean.pdf>] <pics/simX.pdf, id=73, 433.62pt x 433.62pt>
 File: pics/simX.pdf Graphic file (type pdf)
  <use pics/simX.pdf>
-Package pdftex.def Info: pics/simX.pdf used on input line 245.
+Package pdftex.def Info: pics/simX.pdf used on input line 285.
 (pdftex.def)             Requested size: 132.22047pt x 132.21751pt.
- <pics/simPCAX.pdf, id=40, 433.62pt x 433.62pt>
+ <pics/simPCAX.pdf, id=74, 433.62pt x 433.62pt>
 File: pics/simPCAX.pdf Graphic file (type pdf)
  <use pics/simPCAX.pdf>
-Package pdftex.def Info: pics/simPCAX.pdf used on input line 250.
+Package pdftex.def Info: pics/simPCAX.pdf used on input line 291.
 (pdftex.def)             Requested size: 132.22047pt x 132.21751pt.
- <pics/simARCX.pdf, id=41, 433.62pt x 433.62pt>
+ <pics/simARCX.pdf, id=75, 433.62pt x 433.62pt>
 File: pics/simARCX.pdf Graphic file (type pdf)
  <use pics/simARCX.pdf>
-Package pdftex.def Info: pics/simARCX.pdf used on input line 255.
+Package pdftex.def Info: pics/simARCX.pdf used on input line 297.
 (pdftex.def)             Requested size: 132.22047pt x 132.21751pt.
- (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.bbl [7 <./pics/simX.pdf> <./pics/simPCAX.pdf> <./pics/simARCX.pdf>]) [8] [9] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.aux) )
+ [8]
+
+Package caption Warning: \label without proper reference on input line 331.
+See the caption package documentation for explanation.
+
+
+LaTeX Warning: Reference `tabs2' on page 9 undefined on input line 312.
+
+[9 <./pics/simX.pdf> <./pics/simPCAX.pdf> <./pics/simARCX.pdf>] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.bbl [10]) [11] [12] (/Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.aux)
+
+LaTeX Warning: There were undefined references.
+
+ )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 1061 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 5535 strings out of 493014
- 79848 string characters out of 6133351
- 164131 words of memory out of 5000000
- 8972 multiletter control sequences out of 15000+600000
- 15820 words of font info for 59 fonts, out of 8000000 for 9000
+ 5573 strings out of 493014
+ 80562 string characters out of 6133351
+ 166387 words of memory out of 5000000
+ 9008 multiletter control sequences out of 15000+600000
+ 17068 words of font info for 64 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,19n,40p,1082b,2317s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on /Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.pdf (9 pages, 237173 bytes).
+ 42i,19n,40p,1082b,2322s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on /Volumes/shared_data/work/git/jkmeans/docs/.texpadtmp/draft.pdf (12 pages, 279671 bytes).
 PDF statistics:
- 131 PDF objects out of 1000 (max. 8388607)
- 94 compressed objects within 1 object stream
+ 175 PDF objects out of 1000 (max. 8388607)
+ 126 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 16 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

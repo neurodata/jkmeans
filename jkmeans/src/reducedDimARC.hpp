@@ -13,6 +13,8 @@ class reducedDimARC {
   double sigma2;
   bool randomStart;
 
+  double loglik;
+
   std::shared_ptr<Mixture> mix;
   unsigned int ver;
 
@@ -38,8 +40,8 @@ class reducedDimARC {
     }
 
     if (randomStart) {
-      // X += randn(n, d);
-      X = randn(n, d);
+      X += randn(n, d);
+      // X = randn(n, d);
     }
 
     Sigma = eye(d, d);
@@ -93,10 +95,28 @@ class reducedDimARC {
     Sigma = diagmat(mix->Sigma);
   }
 
+  double computeLoglik() {
+    mat XZmu = X - Zmu;
+    double logdetSigma;
+    double sign;
+    log_det(logdetSigma, sign, Sigma);
+
+    return accu(XZmu % trans(solve(Sigma, XZmu.t()))) + n * logdetSigma +
+           n * p * log(sigma2) + n * p;
+  }
+
   void runEM(int steps) {
+    double cur_loglik = INFINITY;
     for (int i = 0; i < steps; ++i) {
       Estep();
       Mstep();
+      double new_loglik = computeLoglik();
+      cout << new_loglik << endl;
+      if (new_loglik > cur_loglik & i > 1)
+        break;
+      else
+        cur_loglik = new_loglik;
     }
+    loglik = cur_loglik;
   }
 };

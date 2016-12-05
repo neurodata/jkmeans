@@ -96,7 +96,7 @@ Therefore, it is useful to consider regularization to obtain good separation in 
 
 Motivated by these studies, we propose a new repulsive regularization on the component centers in the low dimensional subspace. Instead of directly applying penalty on a short distance, we modify the latent probability matrix $\W$ to a complete membership binary matrix $\hat\Z$, which is learned when maximizing the conditional likelihood. This indirectly creates repulsion among the centers. Then alternating maximization can be utilized to find the subspace where the data are separable. This model is efficient to estimate and requires no tuning, hence we refer it as automatic repulsive clustering.
 
-It is worth mentioning a different class of high dimensional clustering method, namely sparse clustering (see \cite{witten2012framework} and the references therein). The main idea is to select the subset of dimensions directly on the data space via sparsity constraint. Our focus is different, since there are many types of data that do not exhibit significant group pattern on a small dimension subset, but do so on a low dimensional latent space. For example, shape and image data commonly show difference almost everywhere, but the difference can be summarized in a projected low dimensional space. In this scenario, our approach is more suitable.
+%It is worth mentioning a different class of high dimensional clustering method, namely sparse clustering (see \cite{witten2012framework} and the references therein). The main idea is to select the subset of dimensions directly on the data space via sparsity constraint. Our focus is different, since there are many types of data that do not exhibit significant group pattern on a small dimension subset, but do so on a low dimensional latent space. For example, shape and image data commonly show difference almost everywhere, but the difference can be summarized in a projected low dimensional space. In this scenario, our approach is more suitable.
 
 The article proceeds as follows: in section 2, the modeling framework and the estimation procedure are described; in section 3, theory is provided on the automatic repulsion; in section 4, simulation illustrates the advantages; in section 5, a real data application is demonstrated via synapse clustering.
 
@@ -215,75 +215,131 @@ Then the whole estimation can be carried out by alternating in the two steps. To
 
 \section{Experiments}
 
-\subsection{Synthetic Data}
-Data generation:
+\subsection{Automatic Repulsion}
 
-n=300
-p=2000
-d=2
-mu=1,2,3
-sigma2=0.5
+Before we carry out clustering simulations, we first illustrate the effects of automatic repulsion. We generate a mixture of two Gaussian components with mean $1$ and $2$. We then change the variance in $0.3^2$, $0.5^2$ and $1^2$, so that the data exhibit different degree of overlap (Figure~\ref{fig:simRepulY}). We then use ARC to estimate the two component means. We repeat the experiment for $1,000$ times so that the distribution of the mean estimates can be visualized  (Figure~\ref{fig:simRepulM}).
+
+ When the data has little overlap (with variance  $0.3^2$), the mean estimate for the two components show almost no repulsion. As the variance increases (with variance  $0.5^2$), the mean estimates start to be pushed apart. When the overlapping becomes severe  (with variance  $1^2$), the two mean estimates are further  so that they still remain well separated. This behavior ensures the clustering generates clear boundary between clusters. The regularization is automatic and requires no tuning.
+
+
+
+\begin{figure}[H]
+ \centering
+  \begin{subfigure}[b]{1\textwidth}
+ \includegraphics[width=1\textwidth]{pics/repulData}
+  \caption{The distribution of the data.}
+\label{fig:simRepulY}
+\end{subfigure}
+  \hfill
+   \begin{subfigure}[b]{1\textwidth}
+ \includegraphics[width=1\textwidth]{pics/repulMean}
+  \caption{The distribution of the mean under the automatic repulsion.}
+  \label{fig:simRepulM}
+\end{subfigure}
+\caption{Simulation illustrating the automatic repulsion in the mean estimates, under different degree of overlap (standard deviation) in the generated data.}
+ \end{figure}
+
+
+
+\subsection{Clustering Synthetic Data}
+
+To illustrate the effect of clustering in low dimension, we simulate $3$ component data with $n_1=50$, $n_2=150$ and $n_3=100$ in two dimensions, with means $(1,2)$, $(2,1)$ and $(3,3)$. We set the variance to be $0.2$ so that the components are well separated.
+
+Then we project the matrix into $p$ dimensions via a random matrix $V$ with $V_{ij}\sim N(0,1)$. And we test three models (i) the Gaussian mixture model (GMM) directly on the the high dimension, (ii) GMM on the reduced dimension learned by PCA and (iii) ARC on adapted reduced dimension. We obtain the clustering labels estimated from the models and compute the  adjusted random index with respect to the true labels. Each experiment is repeated $10$ times with mean and standard deviation reported.
+
+We first simply vary $p$ from $50$ to $1,000$ to test the performance of models. Since each dimension contains signals, not surprisingly, the simple GMM on the large dimensions performs the best among all three models (Table~\ref{tabs1}, row 1), followed closely by the ARC model. However, such setting is very unrealistic as often most of the large dimensions are irrelevant. To simulate this setting, we keep the projected dimensions fixed at $20$ but add $(p-20)$ interfering dimensions from pure noise $y_{i,j}\sim N(0,1)$. The performance of the high dimensional GMM starts to deteriorate when the irrelevant dimensions to start to interfere with the signals (Table~\ref{tabs1}, row 2).
 
 
 \begin{table}[H]
+\small
 \centering
-	\begin{tabular}{| l | r |}
+	\begin{tabular}{| l | r | r| r| r| r| }
+			\multicolumn{2}{l}{Without irrelevant dimensions} \\
 	\hline
-			Model & $ARI$ \\
+			p & 50 & 100 & 200 & 500 &1000  \\
 	\hline
-			GMM on Principle Components &  0.01  \\
-			ARC on Principle Components		& 0.31 \\
-			GMM on Flexible Reduced Dimension &  0.35  \\
-			ARC on Flexible Reduced Dimension		& {\bf 0.44} \\
+			GMM &   {\bf 0.83} $\pm$ 0.04 &  {\bf 0.84} $\pm$ 0.04  &  {\bf 0.84} $\pm$ 0.03 &  {\bf 0.87} $\pm$ 0.03 &  {\bf 0.85} $\pm$ 0.05 \\
+			PCA+GMM		& 0.64 $\pm$ 0.20 & 0.77 $\pm$ 0.19 & 0.66 $\pm$ 0.29 & 0.79 $\pm$ 0.22 & 0.69 $\pm$ 0.30\\
+			ARC 	&  0.72 $\pm$ 0.12 & 0.82 $\pm$ 0.16 & 0.79 $\pm$ 0.14 & 0.73 $\pm$ 0.19 & 0.86 $\pm$ 0.13\\
+			\hline
+			\multicolumn{2}{l}{With ($p-20$) irrelevant dimensions } \\
+	\hline
+			p & 50 & 100 & 200 & 500 &1000  \\
+	\hline
+			GMM & 0.76 $\pm$ 0.03  &  0.69 $\pm$ 0.13     &  0.70 $\pm$ 0.22  &  0.63 $\pm$ 0.11 &  0.53 $\pm$ 0.07\\
+			PCA+GMM	&0.75 $\pm$ 0.23 	& 0.48 $\pm$ 0.25  &  0.63 $\pm$ 0.21   &  0.48 $\pm$ 0.24&   0.57 $\pm$ 0.21\\
+			ARC 	& {\bf 0.80} $\pm$ 0.11  & {\bf 0.75} $\pm$ 0.11 &  {\bf 0.83 } $\pm$ 0.10   &  {\bf 0.79} $\pm$ 0.09&  {\bf 0.76} $\pm$ 0.09\\
 			\hline
 	\end{tabular}
+	\caption{Clustering performance using adjusted random index with respect to the true labels.}
+	\label{tabs1}
 \end{table}
+
+In this regard, the reduced dimensional method is advantageous as it serves to discard the irrelevant dimensions. Nevertheless, clustering based on PCA-generated subspace almost never perform well. This can be explained by Figure~\ref{fig:sim_pca} that the first two principle components show little separation. This problem is solved with the repulsive regularization. As shown in  Figure~\ref{fig:sim_arc}, the discovered low dimension space demonstrates clear and wide boundaries among clusters, leading to superior performance in ARI. 
+
+
 
 \begin{figure}[H]
  % \centering
   \begin{subfigure}[b]{0.32\textwidth}
  \includegraphics[width=0.8\textwidth]{pics/simX}
-  \caption{The lower dimensions used in data generation.}
+  \caption{The true low dimensions in data generation.}
+\label{fig:sim_truth}
 \end{subfigure}
   \hfill
    \begin{subfigure}[b]{0.32\textwidth}
  \includegraphics[width=0.8\textwidth]{pics/simPCAX}
   \caption{The lower dimensions discovered by PCA.}
+  \label{fig:sim_pca}
 \end{subfigure}
   \hfill
  \begin{subfigure}[b]{0.32\textwidth}
  \includegraphics[width=0.8\textwidth]{pics/simARCX}
   \caption{The lower dimensions discovered by ARC.}
+  \label{fig:sim_arc}
 \end{subfigure}
+	\caption{Scatterplots illustrating the learning of the low dimensional subspace using PCA and ARC. The ground truth, clustered labels under PCA+GMM and clustered labels under ARC are shown in colors.}
  \end{figure}
 
-\subsection{Real Data}
 
 
-MNIST:
 
 
-Four digits: $0,3,7,9$. Pick $100$ samples for each digit.
+\subsection{Clustering Real Data: Handwritten Digits Clustering}
 
-Compute average ARI over $10$ tests.
+We now test the model on real data with MNIST handwritten digits. The digits are centered in a 28x28 image. We normalize the pixel values by dividing 255. 
+
+Following the choice of digits \citep{lee2015bayesian} for clustering benchmark, we use the images of four digits: $0,3,7,9$. To mimic the low sample size and high dimension setting, we randomly draw $50$ samples for each digit. Each experiment is repeated 10 times for GMM applied on the data, PCA based GMM and ARC. The results are shown in Table~\ref{tabs2}. The ARC clearly shows clear advantages in clustering the four digits over the other methods.
+
+For completeness, we also test the clustering models with all $10$ digits. Due to the similarity of the digits and noise in rotation, we observe a significant decrease in ARI. Nevertheless, ARC still dominates in the performance over the other methods.
+
+As comparison, we include the test result using sparsity regularized clustering (SparCL,\cite{witten2012framework}). Due to the nature of image data, the sparsity assumption is not quite suitable for this data, except for removing common blank background. As the result, its performance is almost the same as the simple GMM directly applied on the data.
 
 \begin{table}[H]
+\small
 \centering
-	\begin{tabular}{| l | r |}
+	\begin{tabular}{| l | r | r|}
 	\hline
-			Model & $ARI$ \\
-	\hline
-			GMM & 0.50 \\
-			PCA + GMM &  0.38  \\
-			ARC		& {\bf 0.57} \\
+	Digits & $(0,3,7,9)$ & $0-9$ \\
+		\hline
+			GMM &   0.37 $\pm$ 0.04   &   0.10 $\pm$ 0.11  \\
+			PCA+GMM		& 0.35 $\pm$ 0.14  &   0.24 $\pm$ 0.01  \\
+			SparCL 	&  0.36 $\pm$ 0.12 & 0.11 $\pm$ 0.13 \\
+			ARC 	&  {\bf 0.44} $\pm$ 0.12 &   {\bf 0.30} $\pm$ 0.05  \\
 			\hline
-	\end{tabular}
+		\end{tabular}
+	\label{tabs2}
+		\caption{Adjusted rand index as benchmark for the different clustering algorithms applied on the MNIST handwritten digits data.}
 \end{table}
-
 
 
 \section{Discussion}
 
+With the large dimensions contaminated with irrelevant information, clustering with high dimensional data is challenging. Applying dimension reduction is an appealing direction and has recently gain more traction. Examples include \cite{niu2011dimensionality} combining dimension reduction with spectral clustering to separate data into multiple manifolds and \cite{jing2013dictionary} using dictionary-learning structure to find the low-dimension subspace.
+
+Since one faces the task of choosing top few dimensions, one critical issue remained, it to identify a subspace that it is ``optimal'' in some sense. In this article, we restrict the focus on the linear subspace, and seek the one where the clustered components have a clear separating boundary. This is a particular useful complement to model-based clustering, where the separation is originally missing in mixture density.
+
+With the tuning-free regularization, it is simple to achieve this task in our model. As demonstrated in the examples, it achieves quite satisfactory performance in both simulation and real data applications. One extension to the current work would be studying the robustness of the error structure. Another one is to combine the regularization with kernel based spectral clustering hence extends the method to non-linear space.
 
 \bibliography{reference}
 \bibliographystyle{plainnat}
