@@ -37,8 +37,9 @@ Rcpp::List jkmeansEM(const arma::mat& y, int k, const arma::mat& meansIni,
 // [[Rcpp::export]]
 Rcpp::List rDARC(const arma::mat& Y, int d, int k, const arma::mat& meansIni,
                  int steps = 1000, double tol = 1E-8, bool randomStart = true,
-                 bool fixW = false, double sigma2_ini = 0.1, int ver = 1) {
-  reducedDimARC rdARC(Y, d, k, randomStart, sigma2_ini, ver, fixW);
+                 bool fixW = false, bool useEstep = true,
+                 double sigma2_ini = 0.1, int ver = 1) {
+  reducedDimARC rdARC(Y, d, k, randomStart, sigma2_ini, ver, fixW, useEstep);
   rdARC.runEM(steps);
 
   return Rcpp::List::create(

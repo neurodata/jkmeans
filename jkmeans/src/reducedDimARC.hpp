@@ -12,6 +12,7 @@ class reducedDimARC {
   mat Zmu;
   double sigma2;
   bool randomStart;
+  bool useEstep;
 
   double loglik;
 
@@ -19,7 +20,7 @@ class reducedDimARC {
   unsigned int ver;
 
   reducedDimARC(mat _Y, int _d, int _K, bool _randomStart, double sigma2_ini,
-                unsigned int _ver, bool fixW) {
+                unsigned int _ver, bool fixW, bool _useEstep) {
     ver = _ver;
 
     Y = _Y;
@@ -28,6 +29,7 @@ class reducedDimARC {
     n = Y.n_rows;
     p = Y.n_cols;
     randomStart = _randomStart;
+    useEstep = _useEstep;
 
     {
       mat U;
@@ -66,9 +68,14 @@ class reducedDimARC {
     mat XY = X.t() * Y;
     mat XXinv = inv(XX + eye(d, d) * 1E-5);
 
-    // expectation
+    // expectation or maximize
     EV = XXinv * XY;
-    EVV = p * sigma2 * XXinv + EV * EV.t();
+
+    // expectation
+    if (useEstep) EVV = p * sigma2 * XXinv + EV * EV.t();
+    // maximize
+    else
+      EVV = EV * EV.t();
   }
 
   void Mstep() {

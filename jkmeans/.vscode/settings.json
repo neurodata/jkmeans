@@ -1,4 +1,0 @@
-// Compiler options for C++ (e.g. ['-std=c++11'])
-"clang.cxxflags": [
-    "-std=c++11 -I/Library/Frameworks/R.framework/Versions/3.3/Resources/library/RcppArmadillo/include/armadillo_bits -larmadillo" // header files
-]

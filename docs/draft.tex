@@ -103,6 +103,40 @@ The article proceeds as follows: in section 2, the modeling framework and the es
 
 \section{Automatic Repulsive Clustering in Reduced Dimension}
 
+
+\subsection{The Necessity of Dimension Reduction for High Dimensional Clustering}
+
+Before we introduce the method, we first examine the conditions that would lead to the failure of the clustering in high dimension. We first consider a simple case of weighted Euclidean distance, which is used in Gaussian mixture model with covariance restricted to diagonal matrix.
+
+\begin{theorem} (High Dimension Clustering Failure Rate)\\
+Assume the true parameters for the two cluster centers are $\{\mu_{11},\mu_{12},\ldots \mu_{1m},\mu_{0(m+1)},\mu_{0(m+2)},\ldots \mu_{0(p-m)}\}'$ and $\{\mu_{21},\mu_{22},\ldots \mu_{2m},\mu_{0(m+1)},\mu_{0(m+2)},\ldots \mu_{0(p-m)}\}'$, in which out of $p$ dimensions, $m$ dimensions are different. The parameter estiamtes for the two centers are $\{\hat\mu_{11},\hat\mu_{12},\ldots \hat\mu_{1m},\hat\mu_{1(m+1)},\hat\mu_{1(m+2)},\ldots \hat\mu_{1(p-m)}\}'$ and $\{\hat\mu_{21},\hat\mu_{22},\ldots \hat\mu_{2m},\hat\mu_{2(m+1)},\hat\mu_{2(m+2)},\ldots \hat\mu_{2(p-m)}\}'$ based on cluster size of $n_1>n_2$.  Then for any point $\{ y_1,\ldots y_p\}'$, the ratio of assigning the data to cluster 1 over  cluster 2 is:
+
+$$ \exp \left ( - \frac{1}{2} \left [ \sum_{j=1}^m \{ (y_{j}-\hat\mu_{1j})^2 - (y_{j}-\hat\mu_{2j})^2\}/\sigma^2_j - \sum_{j=m+1}^{p} \{  (y_{j}-\hat\mu_{2j})^2 -(y_{j}-\hat\mu_{1j})^2 \}/\sigma^2_j \right]\right).$$
+When the noise dimension ${(p-m)\rightarrow \infty}$,
+
+$$\bb E \sum_{j=m+1}^{p} \{  (y_{j}-\hat\mu_{2j})^2 -(y_{j}-\hat\mu_{1j})^2\}/\sigma^2_j  = (p-m)(\frac{1}{n_2}-\frac{1}{n_1}) \rightarrow \infty $$
+\end{theorem}
+
+As the result, any data that is generated from cluster 2 would be mis-clustered with label 1. We use different cluster sizes as a condition to induce the different variances in the cluster means. This condition can be further relaxed for any small difference in the variance. The noise accumulates over the dimensions and quickly distorts the clustering.
+
+To illustrate, we use an arbitrary setting with $\mu_1= \{1, 0\ldots 0\}$ and $\mu_2= \{2, 0\ldots 0\}$, with $1000$ $0$'s as the noisy dimensions. We add small noise $N(0,0.1)$ to the $0$'s in $\mu_1$ and $N(0,0.101)$ in $\mu_2$, and assign the data $y=\{y_1,y_2,\ldots, y_p\}$ with $y_2\ldots y_p \sim N(0, 0.5)$. We set $y_1$ in range from $1.5$ to $5.0$ to see the mis-classification rate.
+
+Figure~\ref{fig:hd_cluster} shows the large error caused by the small difference in the mean estimates in the interfering dimension. Even at $y_1=2.0$, there is still a $40\%$ of misclassification error, which extends well above $2.0$. Therefore, we conclude that dimension reduction is necessary to exclude out the interfering dimensions.
+
+\begin{figure}[H]
+ \centering
+  \begin{subfigure}[b]{.45\textwidth}
+ \includegraphics[width=1\textwidth]{pics/misrate}
+\label{fig:simRepulY}
+\end{subfigure}
+\caption{Misclassification rate under the interference of the noisy dimensions.}
+\label{fig:hd_cluster}
+ \end{figure}
+
+\leo{extend to any metric?}
+\\
+\leo{input on simulation conditions?}
+
 \subsection{Clustering Under Reduced Dimension}
 
 We first summarize the framework that combines dimension reduction and clustering. We refer this as reduced dimension clustering.
@@ -134,10 +168,14 @@ We now introduce the automatic repulsive regularization. Typically the regulariz
 For any $k\ne k^*$, 
 $|| \frac{\sum_i w_{i,k} x_i}{\sum_i w_{i,k}} - \frac{\sum_i w_{i,k^*} x_i}{\sum_i w_{i,k^*}}||\le ||\frac{\sum_i z_{i,k} x_i}{\sum_i z_{i,k}} - \frac{\sum_i z_{i,k^*} x_i}{\sum_i z_{i,k^*}}||$
 \end{theorem}
-The proof of this theorem is provided in the appendix.
 
 The interpretation of this regularization is to force the estimate centers $\bmu_k$'s to be far apart, so that each row $\X_i$ has one of assignment probability $w_{i,k}\approx 1$. Compared to the other regularization \citep{Kulesza:2012:DPP:2481023}, this is much simple and tuning free. As we show in the next section, the estimation can be carried out by replacing the expectation step in model-based clustering with a maximization step.
 
+\leo{Conjecture}
+\begin{theorem} (Effects of Repulsion on Classification)\\
+The effects of repulsion do not interfere the classification when the difference of $b_1$ and $b_2$ are bounded:
+$$ \exp \left ( - \frac{1}{2} \left [ \sum_{j=1}^m \{ (y_{j}-\hat\mu_{1j} + b_1)^2 - (y_{j}-\hat\mu_{2j} + b_2)^2\}/\sigma^2_j \right] \right).$$
+\end{theorem}
 
 \section{Estimation}
 
