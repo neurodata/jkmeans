@@ -22,9 +22,15 @@ nf<- 64
 
 K<- 2
 
+
+
 plotFace<- function(x){
   image(t(matrix(rev(x),64,64)),col = grey(seq(0, 1, length = 256)))
 }
+
+plotFace(X[1,])
+plotFace(X[25,])
+
 
 raw<- jkmeansEM(X,k = K,useKmeansIni = T,meansIni = matrix(rep(1,2*10),nrow = 2),sigma2_ini = 0.1,fixW = F)
 
