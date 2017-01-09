@@ -30,12 +30,12 @@ X2<- svdL$u
 
 nX2<- X2/ sqrt( rowSums(X2^2))
 
-# plot(X2)
-plot(nX2)
+plot(X2)
+# plot(nX2)
 
 clust<-kmeans(nX2,K)
 
-plot(nX2,col=clust$cluster)
+plot(X2,col=clust$cluster)
 
 
 plot(X1,col=clust$cluster)
